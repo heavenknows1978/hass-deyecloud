@@ -57,7 +57,7 @@ async def _async_get_token(session: aiohttp.ClientSession, username, password, a
     _LOGGER.debug("Requesting token from API: %s", url)
     payload = {
         "appSecret": app_secret,
-        "username": username,
+        "email": username,
         "password": _sha256(password),
     }
     async with session.post(url, json=payload, timeout=10) as resp:
