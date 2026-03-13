@@ -8,7 +8,7 @@ async def async_get_token(session: aiohttp.ClientSession, username, password, ap
     url = f"{base_url}/account/token?appId={app_id}"
     payload = {
         "appSecret": app_secret,
-        "username": username,
+        "email": username,
         "password": _sha256(password),
     }
     async with session.post(url, json=payload, timeout=10) as resp:
