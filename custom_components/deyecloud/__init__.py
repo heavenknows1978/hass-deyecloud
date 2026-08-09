@@ -18,7 +18,7 @@ PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BUTTON]
 CARD_VERSION = "2.2.6"
 CARD_STATIC_URL = "/deyecloud/frontend"
 CARD_MODULE_URL = (
-    f"{CARD_STATIC_URL}/deyecloud-energy-flow-card-v225.js?v={CARD_VERSION}"
+    f"{CARD_STATIC_URL}/deyecloud-energy-flow-card.js?v={CARD_VERSION}"
 )
 DATA_FRONTEND_MODULE_URL = "frontend_module_url"
 
@@ -30,7 +30,7 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
         return
 
     frontend_dir = Path(__file__).parent / "frontend"
-    card_file = frontend_dir / "deyecloud-energy-flow-card-v225.js"
+    card_file = frontend_dir / "deyecloud-energy-flow-card.js"
     if not card_file.is_file():
         _LOGGER.error("Bundled DeyeCloud frontend card is missing: %s", card_file)
         return

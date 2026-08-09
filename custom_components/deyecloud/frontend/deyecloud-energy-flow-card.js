@@ -63,6 +63,7 @@ const DAILY_METRICS = {
 
 const STRINGS = {
   vi: {
+    locale: "vi-VN",
     defaultTitle: "Deye Solar Energy Flow",
     live: "Đang hoạt động",
     delayed: "Dữ liệu trễ",
@@ -115,6 +116,7 @@ const STRINGS = {
     cardDescription: "Luồng điện mặt trời, pin, lưới và tải theo thời gian thực.",
   },
   ru: {
+    locale: "ru-RU",
     defaultTitle: "Потоки энергии Deye",
     live: "В реальном времени",
     delayed: "Данные задерживаются",
@@ -167,6 +169,7 @@ const STRINGS = {
     cardDescription: "Потоки энергии солнца, аккумулятора, сети и нагрузки в реальном времени.",
   },
   en: {
+    locale: "en-US",
     defaultTitle: "Deye Solar Energy Flow",
     live: "Live",
     delayed: "Delayed data",
@@ -220,13 +223,18 @@ const STRINGS = {
   },
 };
 
-function browserLanguage() {
-  const rawLanguage =
-    document?.documentElement?.lang || window?.navigator?.language || "en";
-  const language = String(rawLanguage).toLowerCase();
-  if (language.startsWith("vi")) return "vi";
-  if (language.startsWith("ru")) return "ru";
-  return "en";
+function normalizeLanguage(value) {
+  const language = String(value || "").toLowerCase().split(/[-_]/)[0];
+  return STRINGS[language] ? language : "en";
+}
+
+function interfaceLanguage(hass) {
+  return normalizeLanguage(
+    hass?.language ||
+      hass?.locale?.language ||
+      document?.documentElement?.lang ||
+      window?.navigator?.language
+  );
 }
 
 function escapeHtml(value) {
@@ -279,22 +287,18 @@ function formatPercent(value, locale = "en") {
   return `${Math.round(value).toLocaleString(locale)}%`;
 }
 
-function relativeTime(date, language) {
+function relativeTime(date, locale) {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "—";
   const seconds = Math.max(0, Math.round((Date.now() - date.getTime()) / 1000));
-  if (language === "ru") {
-    if (seconds < 10) return "только что";
-    if (seconds < 60) return `${seconds} с назад`;
-    const minutes = Math.round(seconds / 60);
-    if (minutes < 60) return `${minutes} мин назад`;
-    return `${Math.round(minutes / 60)} ч назад`;
-  }
-  if (seconds < 10) return language === "vi" ? "vừa xong" : "just now";
-  if (seconds < 60) return language === "vi" ? `${seconds} giây trước` : `${seconds}s ago`;
+  const formatter = new Intl.RelativeTimeFormat(locale, {
+    numeric: seconds < 10 ? "auto" : "always",
+    style: "short",
+  });
+  if (seconds < 10) return formatter.format(0, "second");
+  if (seconds < 60) return formatter.format(-seconds, "second");
   const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return language === "vi" ? `${minutes} phút trước` : `${minutes}m ago`;
-  const hours = Math.round(minutes / 60);
-  return language === "vi" ? `${hours} giờ trước` : `${hours}h ago`;
+  if (minutes < 60) return formatter.format(-minutes, "minute");
+  return formatter.format(-Math.round(minutes / 60), "hour");
 }
 
 function integrationLanguage(hass, stationId) {
@@ -311,6 +315,10 @@ function integrationLanguage(hass, stationId) {
     stateObj?.attributes?.deyecloud_card_language || ""
   ).toLowerCase();
   return STRINGS[language] ? language : null;
+}
+
+function resolveLanguage(hass, stationId) {
+  return integrationLanguage(hass, stationId) || interfaceLanguage(hass);
 }
 
 function iconSolar() {
@@ -429,21 +437,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
   }
 
   _language() {
-    const configuredLanguage = integrationLanguage(
-      this._hass,
-      this._selectedStationId()
-    );
-    if (configuredLanguage) return configuredLanguage;
-
-    const rawLanguage =
-      this._hass?.language ||
-      this._hass?.locale?.language ||
-      window?.navigator?.language ||
-      "en";
-    const language = String(rawLanguage).toLowerCase();
-    if (language.startsWith("vi")) return "vi";
-    if (language.startsWith("ru")) return "ru";
-    return "en";
+    return resolveLanguage(this._hass, this._selectedStationId());
   }
 
   _strings() {
@@ -573,8 +567,8 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
 
     try {
       const language = this._language();
-      const locale = { en: "en-US", ru: "ru-RU", vi: "vi-VN" }[language];
-      const t = this._strings();
+      const t = STRINGS[language];
+      const locale = t.locale;
       const stationIds = this._stationIds();
       const stationId = this._selectedStationId();
 
@@ -741,7 +735,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           </div>
           <div class="updated-at">
             <span>${escapeHtml(t.updated)}</span>
-            <strong>${escapeHtml(relativeTime(latestDate, language))}</strong>
+            <strong>${escapeHtml(relativeTime(latestDate, locale))}</strong>
           </div>
         </header>
 
@@ -1561,18 +1555,7 @@ class DeyeCloudEnergyFlowCardEditor extends HTMLElement {
     const stationId = this._config.station_id
       ? String(this._config.station_id)
       : this._stationIds()[0];
-    const configuredLanguage = integrationLanguage(this._hass, stationId);
-    if (configuredLanguage) return configuredLanguage;
-
-    const rawLanguage =
-      this._hass?.language ||
-      this._hass?.locale?.language ||
-      window?.navigator?.language ||
-      "en";
-    const language = String(rawLanguage).toLowerCase();
-    if (language.startsWith("vi")) return "vi";
-    if (language.startsWith("ru")) return "ru";
-    return "en";
+    return resolveLanguage(this._hass, stationId);
   }
 
   _stationIds() {
@@ -1687,7 +1670,7 @@ if (!customElements.get(LEGACY_EDITOR_TAG)) {
 // reference to the original array; assigning a new array makes the card picker
 // wait forever for stale metadata and leaves a permanent spinner.
 const customCardsRegistry = window.customCards || (window.customCards = []);
-const pickerStrings = STRINGS[browserLanguage()];
+const pickerStrings = STRINGS[interfaceLanguage()];
 const cardMetadata = {
   type: CARD_TAG,
   name: pickerStrings.cardName,
