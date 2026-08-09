@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Подключение к DeyeCloud",
+        "description": "Введите учетные данные DeyeCloud OpenAPI.",
+        "data": {
+          "username": "Имя пользователя или email",
+          "password": "Пароль",
+          "app_id": "App ID",
+          "app_secret": "App Secret",
+          "base_url": "Base URL",
+          "start_month": "Начальный месяц",
+          "company_id": "Company ID (необязательно)",
+          "card_language": "Язык карточки"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Ошибка аутентификации. Проверьте имя пользователя/email, пароль, App ID, App Secret и Base URL.",
+      "no_stations_found": "Аутентификация выполнена, но доступные станции не найдены. Для учетной записи установщика необходимо указать корректный Company ID."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Настройка DeyeCloud",
+        "description": "Обновите учетные данные DeyeCloud OpenAPI и язык карточки.",
+        "data": {
+          "username": "Имя пользователя или email",
+          "password": "Пароль",
+          "app_id": "App ID",
+          "app_secret": "App Secret",
+          "base_url": "Base URL",
+          "start_month": "Начальный месяц",
+          "company_id": "Company ID (необязательно)",
+          "card_language": "Язык карточки"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Ошибка аутентификации. Проверьте имя пользователя/email, пароль, App ID, App Secret и Base URL.",
+      "no_stations_found": "Аутентификация выполнена, но доступные станции не найдены. Для учетной записи установщика необходимо указать корректный Company ID."
+    }
+  }
+}
