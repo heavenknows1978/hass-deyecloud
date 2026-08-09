@@ -1,4 +1,4 @@
-const CARD_VERSION = "2.2.5";
+const CARD_VERSION = "2.2.6";
 const CARD_TAG = "deyecloud-energy-flow-card-v3";
 const LEGACY_CARD_TAG = "deyecloud-energy-flow-card";
 const EDITOR_TAG = "deyecloud-energy-flow-card-v3-editor";
@@ -106,6 +106,65 @@ const STRINGS = {
     excellent: "Rất tốt",
     balancedLevel: "Cân bằng",
     monitoring: "Cần theo dõi",
+    diagramLabel: "Luồng năng lượng mặt trời theo thời gian thực",
+    errorTitle: "Không thể hiển thị card DeyeCloud",
+    errorHelp:
+      "Thử tải lại trình duyệt (Ctrl+F5). Nếu vẫn lỗi, hãy cập nhật integration lên bản mới nhất.",
+    unknownError: "Lỗi không xác định",
+    cardName: "Luồng năng lượng DeyeCloud",
+    cardDescription: "Luồng điện mặt trời, pin, lưới và tải theo thời gian thực.",
+  },
+  ru: {
+    defaultTitle: "Потоки энергии Deye",
+    live: "В реальном времени",
+    delayed: "Данные задерживаются",
+    unavailable: "Недоступно",
+    updated: "Обновлено",
+    station: "Станция",
+    solar: "Солнечные панели",
+    inverter: "Инвертор",
+    home: "Потребление дома",
+    battery: "Аккумулятор",
+    grid: "Электросеть",
+    generating: "Генерация",
+    idle: "Ожидание",
+    charging: "Зарядка",
+    discharging: "Разрядка",
+    importing: "Потребление из сети",
+    exporting: "Отдача в сеть",
+    balanced: "Баланс",
+    supplying: "Питание нагрузки",
+    today: "Энергия за сегодня",
+    solarToday: "Выработка",
+    loadToday: "Потребление",
+    importToday: "Получено из сети",
+    exportToday: "Отдано в сеть",
+    chargeToday: "Заряд аккумулятора",
+    dischargeToday: "Разряд аккумулятора",
+    selfSufficiency: "Текущая автономность",
+    solarUtilization: "Использование солнечной энергии",
+    powerBalance: "Дисбаланс мощности",
+    dataHint: "Карточка автоматически находит сенсоры DeyeCloud по station_id.",
+    noStation: "Сенсоры DeyeCloud не найдены",
+    noStationHelp:
+      "Убедитесь, что интеграция создала сенсоры, затем перезагрузите Home Assistant.",
+    editorStation: "Станция DeyeCloud",
+    editorTitle: "Собственный заголовок",
+    editorDaily: "Показывать энергию за сегодня",
+    editorEfficiency: "Показывать показатели эффективности",
+    editorAnimation: "Анимация потоков энергии",
+    auto: "Автоматически",
+    entityDetails: "Нажмите на блок, чтобы открыть сведения о сущности",
+    excellent: "Отлично",
+    balancedLevel: "Сбалансировано",
+    monitoring: "Требует внимания",
+    diagramLabel: "Потоки солнечной энергии в реальном времени",
+    errorTitle: "Не удалось отобразить карточку DeyeCloud",
+    errorHelp:
+      "Перезагрузите страницу в браузере (Ctrl+F5). Если ошибка повторится, обновите интеграцию до последней версии.",
+    unknownError: "Неизвестная ошибка",
+    cardName: "Потоки энергии DeyeCloud",
+    cardDescription: "Потоки энергии солнца, аккумулятора, сети и нагрузки в реальном времени.",
   },
   en: {
     defaultTitle: "Deye Solar Energy Flow",
@@ -151,8 +210,24 @@ const STRINGS = {
     excellent: "Excellent",
     balancedLevel: "Balanced",
     monitoring: "Monitoring",
+    diagramLabel: "Realtime solar energy flow",
+    errorTitle: "Unable to display DeyeCloud card",
+    errorHelp:
+      "Try reloading the browser (Ctrl+F5). If the error persists, update the integration to the latest version.",
+    unknownError: "Unknown error",
+    cardName: "DeyeCloud Energy Flow",
+    cardDescription: "Realtime solar, battery, grid and load power flow.",
   },
 };
+
+function browserLanguage() {
+  const rawLanguage =
+    document?.documentElement?.lang || window?.navigator?.language || "en";
+  const language = String(rawLanguage).toLowerCase();
+  if (language.startsWith("vi")) return "vi";
+  if (language.startsWith("ru")) return "ru";
+  return "en";
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -207,12 +282,35 @@ function formatPercent(value, locale = "en") {
 function relativeTime(date, language) {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "—";
   const seconds = Math.max(0, Math.round((Date.now() - date.getTime()) / 1000));
+  if (language === "ru") {
+    if (seconds < 10) return "только что";
+    if (seconds < 60) return `${seconds} с назад`;
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return `${minutes} мин назад`;
+    return `${Math.round(minutes / 60)} ч назад`;
+  }
   if (seconds < 10) return language === "vi" ? "vừa xong" : "just now";
   if (seconds < 60) return language === "vi" ? `${seconds} giây trước` : `${seconds}s ago`;
   const minutes = Math.round(seconds / 60);
   if (minutes < 60) return language === "vi" ? `${minutes} phút trước` : `${minutes}m ago`;
   const hours = Math.round(minutes / 60);
   return language === "vi" ? `${hours} giờ trước` : `${hours}h ago`;
+}
+
+function integrationLanguage(hass, stationId) {
+  const stateObj = Object.values(hass?.states || {}).find((candidate) => {
+    const attrs = candidate?.attributes || {};
+    return (
+      attrs.deyecloud_card_language &&
+      (stationId === null ||
+        stationId === undefined ||
+        String(attrs.station_id) === String(stationId))
+    );
+  });
+  const language = String(
+    stateObj?.attributes?.deyecloud_card_language || ""
+  ).toLowerCase();
+  return STRINGS[language] ? language : null;
 }
 
 function iconSolar() {
@@ -331,12 +429,21 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
   }
 
   _language() {
+    const configuredLanguage = integrationLanguage(
+      this._hass,
+      this._selectedStationId()
+    );
+    if (configuredLanguage) return configuredLanguage;
+
     const rawLanguage =
       this._hass?.language ||
       this._hass?.locale?.language ||
       window?.navigator?.language ||
       "en";
-    return String(rawLanguage).toLowerCase().startsWith("vi") ? "vi" : "en";
+    const language = String(rawLanguage).toLowerCase();
+    if (language.startsWith("vi")) return "vi";
+    if (language.startsWith("ru")) return "ru";
+    return "en";
   }
 
   _strings() {
@@ -466,7 +573,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
 
     try {
       const language = this._language();
-      const locale = language === "vi" ? "vi-VN" : "en-US";
+      const locale = { en: "en-US", ru: "ru-RU", vi: "vi-VN" }[language];
       const t = this._strings();
       const stationIds = this._stationIds();
       const stationId = this._selectedStationId();
@@ -638,7 +745,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           </div>
         </header>
 
-        <section class="diagram-stage" aria-label="Deye solar realtime energy flow">
+        <section class="diagram-stage" aria-label="${escapeHtml(t.diagramLabel)}">
           <div class="ambient ambient-one"></div>
           <div class="ambient ambient-two"></div>
           <svg class="flow-svg" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-hidden="true">
@@ -777,18 +884,14 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
   }
 
   _renderError(error) {
-    const language = this._language();
-    const title = language === "vi" ? "Không thể hiển thị card DeyeCloud" : "Unable to display DeyeCloud card";
-    const help = language === "vi"
-      ? "Thử tải lại trình duyệt (Ctrl+F5). Nếu vẫn lỗi, hãy cập nhật integration lên bản mới nhất."
-      : "Try reloading the browser (Ctrl+F5). If the error persists, update the integration to the latest version.";
-    const details = error?.message ? escapeHtml(error.message) : "Unknown error";
+    const t = this._strings();
+    const details = error?.message ? escapeHtml(error.message) : t.unknownError;
     this.shadowRoot.innerHTML = `
       ${this._styles()}
       <ha-card class="empty-card error-card">
         <div class="empty-visual">${this._miniIcon("balance")}</div>
-        <h2>${escapeHtml(title)}</h2>
-        <p>${escapeHtml(help)}</p>
+        <h2>${escapeHtml(t.errorTitle)}</h2>
+        <p>${escapeHtml(t.errorHelp)}</p>
         <code>${details}</code>
       </ha-card>`;
   }
@@ -1455,12 +1558,21 @@ class DeyeCloudEnergyFlowCardEditor extends HTMLElement {
   }
 
   _language() {
+    const stationId = this._config.station_id
+      ? String(this._config.station_id)
+      : this._stationIds()[0];
+    const configuredLanguage = integrationLanguage(this._hass, stationId);
+    if (configuredLanguage) return configuredLanguage;
+
     const rawLanguage =
       this._hass?.language ||
       this._hass?.locale?.language ||
       window?.navigator?.language ||
       "en";
-    return String(rawLanguage).toLowerCase().startsWith("vi") ? "vi" : "en";
+    const language = String(rawLanguage).toLowerCase();
+    if (language.startsWith("vi")) return "vi";
+    if (language.startsWith("ru")) return "ru";
+    return "en";
   }
 
   _stationIds() {
@@ -1575,11 +1687,12 @@ if (!customElements.get(LEGACY_EDITOR_TAG)) {
 // reference to the original array; assigning a new array makes the card picker
 // wait forever for stale metadata and leaves a permanent spinner.
 const customCardsRegistry = window.customCards || (window.customCards = []);
+const pickerStrings = STRINGS[browserLanguage()];
 const cardMetadata = {
   type: CARD_TAG,
-  name: "DeyeCloud Energy Flow",
+  name: pickerStrings.cardName,
   preview: false,
-  description: "Realtime animated solar, battery, grid and load flow for DeyeCloud.",
+  description: pickerStrings.cardDescription,
   documentationURL: "https://github.com/heavenknows1978/hass-deyecloud",
   getEntitySuggestion: (hass, entityId) => {
     const stationId = hass?.states?.[entityId]?.attributes?.station_id;

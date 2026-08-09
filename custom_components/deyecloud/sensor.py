@@ -27,6 +27,8 @@ from .const import (
     CONF_BASE_URL,
     CONF_START_MONTH,
     CONF_COMPANY_ID,
+    CONF_CARD_LANGUAGE,
+    CARD_LANGUAGES,
 )
 from .data import (
     _DAILY_ZERO_RECORD_KEYS,
@@ -1011,6 +1013,9 @@ class DeyeCloudSensor(CoordinatorEntity, SensorEntity):
         attrs = self._extra_attributes.copy()
 
         attrs["sensor_type"] = self._sensor_type
+        card_language = self.coordinator.entry.data.get(CONF_CARD_LANGUAGE)
+        if card_language in CARD_LANGUAGES and card_language != "auto":
+            attrs["deyecloud_card_language"] = card_language
 
         if self._metric_key:
             attrs["metric_key"] = self._metric_key
