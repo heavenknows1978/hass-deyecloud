@@ -1633,7 +1633,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           backdrop-filter: blur(8px);
           box-shadow: 0 6px 18px rgba(20, 28, 45, .08);
           color: var(--deye-text);
-          font-size: clamp(10px, 1.4vw, 12px);
+          font-size: clamp(10px, 1.4cqw, 12px);
           line-height: 1;
           font-weight: 800;
           white-space: nowrap;
@@ -1665,15 +1665,15 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           z-index: 3;
           display: flex;
           align-items: center;
-          gap: clamp(6px, 1.2vw, 12px);
+          gap: clamp(6px, 1.2cqw, 12px);
           width: min(100%, 240px);
           min-height: 98px;
-          padding: clamp(10px, 1.4vw, 15px);
+          padding: clamp(10px, 1.4cqw, 15px);
           text-align: left;
           color: var(--deye-text);
           background: color-mix(in srgb, var(--deye-card) 92%, transparent);
           border: 1px solid var(--deye-border);
-          border-radius: clamp(13px, 2.2vw, 20px);
+          border-radius: clamp(13px, 2.2cqw, 20px);
           box-shadow: 0 10px 25px rgba(19, 28, 45, .09);
           backdrop-filter: blur(10px);
           cursor: pointer;
@@ -1691,17 +1691,17 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         .home-node { color: var(--deye-load); }
 
         .node-icon {
-          flex: 0 0 clamp(30px, 5.4vw, 53px);
-          width: clamp(30px, 5.4vw, 53px);
-          height: clamp(30px, 5.4vw, 53px);
+          flex: 0 0 clamp(30px, 5.4cqw, 53px);
+          width: clamp(30px, 5.4cqw, 53px);
+          height: clamp(30px, 5.4cqw, 53px);
           display: grid;
           place-items: center;
         }
         .node-icon svg { width: 100%; height: 100%; overflow: visible; }
         .node-copy { min-width: 0; display: flex; flex-direction: column; }
-        .node-title { color: var(--deye-muted); font-size: clamp(10px, 1.2vw, 12px); line-height: 1.15; }
-        .node-copy strong { color: var(--deye-text); font-size: clamp(16px, 1.9vw, 26px); line-height: 1.25; white-space: nowrap; }
-        .node-status { color: currentColor; font-size: clamp(10px, 1.1vw, 12px); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .node-title { color: var(--deye-muted); font-size: clamp(10px, 1.2cqw, 12px); line-height: 1.15; }
+        .node-copy strong { color: var(--deye-text); font-size: clamp(16px, 1.9cqw, 26px); line-height: 1.25; white-space: nowrap; }
+        .node-status { color: currentColor; font-size: clamp(10px, 1.1cqw, 12px); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .node-badge {
           position: absolute;
           right: 7px;
@@ -1710,7 +1710,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           border-radius: 999px;
           background: var(--deye-battery-soft);
           color: var(--deye-battery);
-          font-size: clamp(8px, 1.3vw, 10px);
+          font-size: clamp(8px, 1.3cqw, 10px);
           font-weight: 800;
         }
 
@@ -2035,7 +2035,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           100% { box-shadow: 0 0 0 0 transparent; }
         }
 
-        @media (max-width: 560px) {
+        @container (max-width: 560px) {
           .card-header { grid-template-columns: auto minmax(0, 1fr); padding: 15px 14px 8px; }
           .updated-at { display: none; }
           .brand-mark { width: 42px; height: 42px; }
@@ -2046,15 +2046,33 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
             grid-template-rows: auto auto auto;
             gap: 10px 8px;
           }
-          .flow-node { width: 100%; min-height: 84px; padding: 8px; }
-          .inverter-node { min-height: 92px; }
-          .node-icon { flex-basis: 28px; width: 28px; height: 28px; }
-          .node-title { display: block; font-size: 9px; }
-          .node-copy strong { font-size: clamp(12px, 3.2vw, 16px); }
-          .node-status { font-size: 9px; }
-          .flow-label { padding: 3px 6px; font-size: 10px; }
-          .battery-label { left: 30%; top: 49%; }
-          .grid-label { left: 70%; top: 49%; }
+          /* Stack icon above text so labels keep one line in narrow cards. */
+          .flow-node {
+            width: 100%;
+            min-height: 0;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px 6px 9px;
+            text-align: center;
+          }
+          .inverter-node { min-height: 0; }
+          .node-icon { flex: 0 0 auto; width: 30px; height: 30px; }
+          .node-copy { align-items: center; max-width: 100%; }
+          .node-title {
+            display: block;
+            max-width: 100%;
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .node-copy strong { font-size: clamp(13px, 3.4cqw, 16px); }
+          .node-status { max-width: 100%; font-size: 10px; }
+          .node-badge { right: 6px; top: 6px; }
+          /* The nodes already show these values; in narrow cards the
+             floating labels would sit on top of the nodes. */
+          .flow-label { display: none; }
           .performance-section { margin-inline: 8px; padding: 10px; }
           .efficiency-strip { gap: 8px; }
           .efficiency-item { min-height: 78px; gap: 9px; padding: 10px; }
@@ -2064,8 +2082,12 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           .efficiency-copy strong { font-size: 11px; }
           .balance-item { padding: 11px 12px; }
           .daily-section { margin-inline: 8px; padding: 12px; }
-          .daily-grid { grid-template-columns: 1fr; gap: 8px; }
-          .daily-metric { min-height: 68px; padding: 11px 12px; }
+          .daily-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+          .daily-metric { min-height: 62px; grid-template-columns: auto minmax(0, 1fr); gap: 9px; padding: 10px; }
+          .daily-icon { flex-basis: 34px; width: 34px; height: 34px; border-radius: 11px; }
+          .daily-icon svg { width: 18px; height: 18px; }
+          .daily-open { display: none; }
+          .daily-metric strong { font-size: 14px; }
           .section-heading > span { display: none; }
         }
 
@@ -2474,7 +2496,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           .ctrl-toggle { min-height: 58px; }
           .segment { font-size: 11px; padding: 6px 4px; }
         }
-        @media (max-width: 560px) {
+        @container (max-width: 560px) {
           .control-section { margin-inline: 8px; padding: 12px; }
           .ctrl-limits { gap: 8px; }
           .ctrl-limit { grid-template-columns: minmax(0, 1fr) auto; padding: 11px; }
