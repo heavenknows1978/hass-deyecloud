@@ -7,8 +7,10 @@ import logging
 import aiohttp
 
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-from .control_payloads import order_finished, order_succeeded
+from .const import DOMAIN
+from .control_payloads import decode_settings, order_finished, order_succeeded
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,6 +21,11 @@ ORDER_TIMEOUT = 90
 # Settings writes are idempotent, so a command the inverter did not answer
 # (seen as status 500 / error "540") is retried once.
 ORDER_ATTEMPTS = 2
+
+
+def settings_signal(device_sn: str) -> str:
+    """Dispatcher signal sent when an inverter's settings were read."""
+    return f"{DOMAIN}_settings_{device_sn}"
 
 
 class DeyeCloudControlError(HomeAssistantError):
@@ -33,6 +40,8 @@ class DeyeCloudController:
         # One command at a time per inverter: DeyeCloud queues orders per
         # device and overlapping writes make the result ambiguous.
         self._locks: dict[str, asyncio.Lock] = {}
+        # Last decoded settings per inverter, see decode_settings().
+        self.settings: dict[str, dict] = {}
 
     async def _request(self, method: str, path: str, payload: dict | None = None) -> dict:
         coordinator = self._coordinator
@@ -122,11 +131,33 @@ class DeyeCloudController:
             except ValueError:
                 registers = {"raw": registers}
 
-        result = {"device_sn": str(device_sn), "registers": registers or {}}
+        result = {
+            "device_sn": str(device_sn),
+            "registers": registers or {},
+            "decoded": decode_settings(registers),
+        }
         system = await self.async_read_system(device_sn)
         if system:
             result["system"] = system
         return result
+
+    async def async_refresh_settings(self, device_sn: str) -> dict:
+        """Read settings from the inverter and push them to the entities."""
+        result = await self.async_read_settings(device_sn)
+        settings = dict(result["decoded"])
+        system = result.get("system") or {}
+        # Decoded /config/system values are authoritative where available.
+        for key, system_key in (
+            ("work_mode", "systemWorkMode"),
+            ("energy_pattern", "energyPattern"),
+            ("max_sell_power", "maxSellPower"),
+            ("max_solar_power", "maxSolarPower"),
+        ):
+            if system.get(system_key) is not None:
+                settings[key] = system[system_key]
+        self.settings[str(device_sn)] = settings
+        async_dispatcher_send(self._coordinator.hass, settings_signal(str(device_sn)))
+        return settings
 
     async def async_read_system(self, device_sn: str) -> dict | None:
         """Return decoded /config/system values, or None if unsupported.

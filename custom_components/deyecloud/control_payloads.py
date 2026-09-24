@@ -164,3 +164,69 @@ def order_finished(order: dict) -> bool:
 def order_succeeded(order: dict) -> bool:
     """Return True if the inverter acknowledged the command."""
     return order.get("status") == ORDER_SUCCESS
+
+
+# Register map of Deye single-phase low-voltage hybrids (SUN-xK-SG0xLP1), as
+# returned by /strategy/dynamicControl/read (hex address -> value). Other
+# models use different addresses and are left undecoded.
+_SINGLE_PHASE_MARKERS = ("00F4", "00F8")
+_WORK_MODE_BY_VALUE = {0: "SELLING_FIRST", 1: "ZERO_EXPORT_TO_LOAD", 2: "ZERO_EXPORT_TO_CT"}
+_TOU_TIME_BASE = 0x00FA
+_TOU_POWER_BASE = 0x0100
+_TOU_SOC_BASE = 0x010C
+
+
+def _register(registers: dict, address: int):
+    value = registers.get(f"{address:04X}")
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def decode_settings(registers: dict | None) -> dict:
+    """Decode the dynamic-control register map into entity values.
+
+    Returns only the settings that could be decoded; unknown models give {}.
+    """
+    registers = {str(k).upper().zfill(4): v for k, v in (registers or {}).items()}
+    if not all(marker in registers for marker in _SINGLE_PHASE_MARKERS):
+        return {}
+
+    settings = {}
+    work_mode = _register(registers, 0x00F4)
+    if work_mode is not None and int(work_mode) in _WORK_MODE_BY_VALUE:
+        settings["work_mode"] = _WORK_MODE_BY_VALUE[int(work_mode)]
+    for key, address in (("solar_sell", 0x00F7), ("grid_charge", 0x00E8)):
+        value = _register(registers, address)
+        if value is not None:
+            settings[key] = bool(int(value))
+    tou = _register(registers, 0x00F8)
+    if tou is not None:
+        settings["time_of_use"] = bool(int(tou) & 1)
+    for key, address in (
+        ("max_charge_current", 0x00D2),
+        ("max_discharge_current", 0x00D3),
+        ("grid_charge_current", 0x00E6),
+        ("max_sell_power", 0x00F5),
+    ):
+        value = _register(registers, address)
+        if value is not None:
+            settings[key] = int(value)
+
+    slots = []
+    for index in range(TOU_SLOT_COUNT):
+        time = _register(registers, _TOU_TIME_BASE + index)
+        power = _register(registers, _TOU_POWER_BASE + index)
+        soc = _register(registers, _TOU_SOC_BASE + index)
+        if time is None or power is None or soc is None:
+            break
+        hhmm = int(time)
+        slots.append({
+            "time": f"{hhmm // 100:02d}:{hhmm % 100:02d}",
+            "power": int(power),
+            "soc": int(soc),
+        })
+    if len(slots) == TOU_SLOT_COUNT:
+        settings["time_of_use_slots"] = slots
+    return settings

@@ -26,28 +26,23 @@ async def async_setup_entry(
             DeyeBatteryCurrentNumber(entry_data, sn, "MAX_CHARGE_CURRENT", "max_charge_current", "Max charge current", "mdi:battery-arrow-up"),
             DeyeBatteryCurrentNumber(entry_data, sn, "MAX_DISCHARGE_CURRENT", "max_discharge_current", "Max discharge current", "mdi:battery-arrow-down"),
             DeyeGridChargeCurrentNumber(entry_data, sn),
-            DeyePowerNumber(entry_data, sn, "MAX_SELL_POWER", "maxSellPower", "max_sell_power", "Max sell power", "mdi:transmission-tower-export"),
-            DeyePowerNumber(entry_data, sn, "MAX_SOLAR_POWER", "maxSolarPower", "max_solar_power", "Max solar power", "mdi:solar-power-variant"),
+            DeyePowerNumber(entry_data, sn, "MAX_SELL_POWER", "max_sell_power", "Max sell power", "mdi:transmission-tower-export"),
+            DeyePowerNumber(entry_data, sn, "MAX_SOLAR_POWER", "max_solar_power", "Max solar power", "mdi:solar-power-variant"),
         ])
     async_add_entities(entities)
 
 
 class _DeyeNumber(DeyeControlEntity, NumberEntity):
     _attr_mode = NumberMode.BOX
-    _system_key: str | None = None
 
     def _payload(self, value: int) -> tuple[str, dict]:
         raise NotImplementedError
 
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-        value = self._system.get(self._system_key) if self._system_key else None
-        if value is None:
-            value = await self.async_last_state_value()
+    def _apply_setting(self, value) -> None:
         try:
-            self._attr_native_value = float(value) if value is not None else None
-        except ValueError:
-            self._attr_native_value = None
+            self._attr_native_value = float(value)
+        except (TypeError, ValueError):
+            pass
 
     async def async_set_native_value(self, value: float) -> None:
         path, payload = self._payload(int(round(value)))
@@ -67,6 +62,7 @@ class DeyeBatteryCurrentNumber(_DeyeNumber):
     def __init__(self, entry_data, device_sn, parameter, key, name, icon):
         super().__init__(entry_data, device_sn, key, name, icon)
         self._parameter = parameter
+        self._setting_key = key
 
     def _payload(self, value):
         # "paramterType" is the field name used by the DeyeCloud API.
@@ -87,6 +83,7 @@ class DeyeGridChargeCurrentNumber(_DeyeNumber):
 
     def __init__(self, entry_data, device_sn):
         super().__init__(entry_data, device_sn, "grid_charge_current", "Grid charge current", "mdi:current-dc")
+        self._setting_key = "grid_charge_current"
 
     def _payload(self, value):
         return "/strategy/dynamicControl", {
@@ -102,14 +99,13 @@ class DeyePowerNumber(_DeyeNumber):
     _attr_native_step = 100
     _attr_native_unit_of_measurement = UnitOfPower.WATT
 
-    def __init__(self, entry_data, device_sn, power_type, system_key, key, name, icon):
+    def __init__(self, entry_data, device_sn, power_type, key, name, icon):
         super().__init__(entry_data, device_sn, key, name, icon)
         self._power_type = power_type
-        self._system_key = system_key
+        self._setting_key = key
         # PV arrays are often oversized (e.g. maxSolarPower 12000 on a
         # smaller inverter, #18), so allow up to twice the rated power.
-        current = self._system.get(system_key) or 0
-        self._attr_native_max_value = max(2 * self._inverter["max_power"], int(current))
+        self._attr_native_max_value = 2 * self._inverter["max_power"]
 
     def _payload(self, value):
         return "/order/sys/power/update", {

@@ -30,10 +30,10 @@ class _DeyeSwitch(DeyeControlEntity, SwitchEntity):
     def _payload(self, on: bool) -> dict:
         raise NotImplementedError
 
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-        value = await self.async_last_state_value()
-        if value in ("on", "off"):
+    def _apply_setting(self, value) -> None:
+        if isinstance(value, bool):
+            self._attr_is_on = value
+        elif value in ("on", "off"):
             self._attr_is_on = value == "on"
 
     async def _async_set(self, on: bool) -> None:
@@ -52,6 +52,7 @@ class DeyeGridChargeSwitch(_DeyeSwitch):
     """Allow charging the battery from the grid."""
 
     _path = "/order/battery/modeControl"
+    _setting_key = "grid_charge"
 
     def __init__(self, entry_data, device_sn):
         super().__init__(entry_data, device_sn, "grid_charge", "Grid charge", "mdi:battery-charging-high")
@@ -68,6 +69,7 @@ class DeyeSolarSellSwitch(_DeyeSwitch):
     """Allow exporting solar power to the grid."""
 
     _path = "/order/sys/solarSell/control"
+    _setting_key = "solar_sell"
 
     def __init__(self, entry_data, device_sn):
         super().__init__(entry_data, device_sn, "solar_sell", "Solar sell", "mdi:solar-power")
@@ -80,6 +82,7 @@ class DeyeTimeOfUseSwitch(_DeyeSwitch):
     """Enable the inverter's time-of-use schedule."""
 
     _path = "/strategy/dynamicControl"
+    _setting_key = "time_of_use"
 
     def __init__(self, entry_data, device_sn):
         super().__init__(entry_data, device_sn, "time_of_use", "Time of use", "mdi:clock-time-four-outline")

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.1
+
+- Control entities now show the inverter's real settings instead of `unknown`. Settings are read back from the inverter shortly after startup and every 30 minutes (`/strategy/dynamicControl/read`) and decoded for Deye single-phase hybrids (SUN-xK-SG0xLP1): work mode, grid charge, solar sell, time of use, max charge/discharge current, grid charge current and max sell power.
+- `deyecloud.read_settings` now also returns the decoded values, including the six time-of-use slots.
+- Energy pattern and max solar power stay unknown until set, because these inverters do not report them.
+- Startup no longer waits for `/config/system`; settings are read in the background.
+
 ## 2.4.0
 
 - Added experimental remote control (#13), off by default behind the new **Enable remote control** option:

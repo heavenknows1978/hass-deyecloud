@@ -27,11 +27,8 @@ async def async_setup_entry(
 class _DeyeSelect(DeyeControlEntity, SelectEntity):
     _path: str
     _field: str
-    _system_key: str
 
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-        value = self._system.get(self._system_key) or await self.async_last_state_value()
+    def _apply_setting(self, value) -> None:
         if value in self.options:
             self._attr_current_option = value
 
@@ -50,7 +47,7 @@ class DeyeWorkModeSelect(_DeyeSelect):
     _attr_options = list(WORK_MODES)
     _path = "/order/sys/workMode/update"
     _field = "workMode"
-    _system_key = "systemWorkMode"
+    _setting_key = "work_mode"
 
     def __init__(self, entry_data, device_sn):
         super().__init__(entry_data, device_sn, "work_mode", "Work mode", "mdi:transmission-tower-export")
@@ -62,7 +59,7 @@ class DeyeEnergyPatternSelect(_DeyeSelect):
     _attr_options = list(ENERGY_PATTERNS)
     _path = "/order/sys/energyPattern/update"
     _field = "energyPattern"
-    _system_key = "energyPattern"
+    _setting_key = "energy_pattern"
 
     def __init__(self, entry_data, device_sn):
         super().__init__(entry_data, device_sn, "energy_pattern", "Energy pattern", "mdi:battery-sync")

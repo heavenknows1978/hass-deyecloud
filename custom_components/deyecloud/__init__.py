@@ -1,5 +1,6 @@
 """DeyeCloud integration."""
 
+from datetime import timedelta
 from pathlib import Path
 import logging
 
@@ -7,7 +8,8 @@ from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.event import async_track_time_interval
 
 from .const import CONF_ENABLE_CONTROL, DOMAIN
 from .control import DeyeCloudControlError, DeyeCloudController
@@ -19,6 +21,8 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BUTTON]
 CONTROL_PLATFORMS: list[Platform] = [Platform.SWITCH, Platform.SELECT, Platform.NUMBER]
+# Each read is a command delivered to the inverter, so keep it infrequent.
+SETTINGS_REFRESH_INTERVAL = timedelta(minutes=30)
 
 CARD_VERSION = "2.2.6"
 CARD_STATIC_URL = "/deyecloud/frontend"
@@ -58,18 +62,13 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     return True
 
 
-async def _async_read_system_settings(controller, inverters) -> dict:
-    """Read decoded /config/system values to seed control entity states."""
-    system = {}
+async def _async_refresh_settings(controller, inverters) -> None:
+    """Read inverter settings so control entities show real values."""
     for sn in inverters:
         try:
-            values = await controller.async_read_system(sn)
+            await controller.async_refresh_settings(sn)
         except DeyeCloudControlError as exc:
-            _LOGGER.debug("Could not read system settings for %s: %s", sn, exc)
-            continue
-        if values:
-            system[sn] = values
-    return system
+            _LOGGER.warning("Could not read settings of inverter %s: %s", sn, exc)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -85,17 +84,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.data.get(CONF_ENABLE_CONTROL):
         controller = DeyeCloudController(coordinator)
         inverters = control_inverters(coordinator)
-        entry_data.update(
-            controller=controller,
-            inverters=inverters,
-            system=await _async_read_system_settings(controller, inverters),
-        )
+        entry_data.update(controller=controller, inverters=inverters)
         entry_data["platforms"] += CONTROL_PLATFORMS
     hass.data[DOMAIN][entry.entry_id] = entry_data
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
     await hass.config_entries.async_forward_entry_setups(entry, entry_data["platforms"])
+
+    if "controller" in entry_data:
+        # Reading takes a few seconds per inverter; do not block startup.
+        @callback
+        def _schedule_refresh(_now=None) -> None:
+            entry.async_create_background_task(
+                hass,
+                _async_refresh_settings(entry_data["controller"], entry_data["inverters"]),
+                f"{DOMAIN} settings refresh",
+            )
+
+        _schedule_refresh()
+        entry.async_on_unload(
+            async_track_time_interval(hass, _schedule_refresh, SETTINGS_REFRESH_INTERVAL)
+        )
 
     return True
 

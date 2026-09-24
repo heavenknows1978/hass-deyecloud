@@ -93,6 +93,40 @@ class StrategyTests(unittest.TestCase):
             CP.build_strategy_payload("123", "hold_soc", target_soc=50, power=1000, max_power=5000, work_mode="TURBO")
 
 
+# Registers read from a SUN-5K single-phase hybrid (inverter 2306066781).
+SINGLE_PHASE_REGISTERS = {
+    "00F4": "2", "00F5": "0", "00F7": "0", "00F8": "255", "00E6": "40", "00E8": "0",
+    "00D2": "60", "00D3": "40", "0035": "4800", "00CE": "20",
+    "00FA": "600", "00FB": "700", "00FC": "1300", "00FD": "1700", "00FE": "2200", "00FF": "0",
+    "0100": "1000", "0101": "1500", "0102": "1500", "0103": "2000", "0104": "2000", "0105": "1000",
+    "010C": "100", "010D": "95", "010E": "90", "010F": "40", "0110": "30", "0111": "20",
+}
+
+
+class DecodeSettingsTests(unittest.TestCase):
+
+    def test_decodes_single_phase_registers(self):
+        settings = CP.decode_settings(SINGLE_PHASE_REGISTERS)
+        self.assertEqual("ZERO_EXPORT_TO_CT", settings["work_mode"])
+        self.assertFalse(settings["solar_sell"])
+        self.assertFalse(settings["grid_charge"])
+        self.assertTrue(settings["time_of_use"])
+        self.assertEqual(60, settings["max_charge_current"])
+        self.assertEqual(40, settings["max_discharge_current"])
+        self.assertEqual(40, settings["grid_charge_current"])
+        self.assertEqual(0, settings["max_sell_power"])
+        self.assertEqual({"time": "06:00", "power": 1000, "soc": 100}, settings["time_of_use_slots"][0])
+        self.assertEqual("00:00", settings["time_of_use_slots"][5]["time"])
+
+    def test_tou_disabled_when_enable_bit_clear(self):
+        registers = dict(SINGLE_PHASE_REGISTERS, **{"00F8": "254"})
+        self.assertFalse(CP.decode_settings(registers)["time_of_use"])
+
+    def test_unknown_model_decodes_nothing(self):
+        self.assertEqual({}, CP.decode_settings({"008E": "2", "0092": "255"}))
+        self.assertEqual({}, CP.decode_settings(None))
+
+
 class OrderStatusTests(unittest.TestCase):
 
     def test_order_states(self):
