@@ -1,7 +1,7 @@
 {
   "domain": "deyecloud",
   "name": "Deye Cloud Home Assistant Integration",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "documentation": "https://github.com/heavenknows1978/hass-deyecloud",
   "dependencies": [
     "frontend"
