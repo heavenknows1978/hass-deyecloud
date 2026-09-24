@@ -9,11 +9,16 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import CONF_ENABLE_CONTROL, DOMAIN
+from .control import DeyeCloudControlError, DeyeCloudController
+from .control_entity import control_inverters
+from .sensor import DeyeCloudCoordinator
+from .services import async_register_services
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BUTTON]
+CONTROL_PLATFORMS: list[Platform] = [Platform.SWITCH, Platform.SELECT, Platform.NUMBER]
 
 CARD_VERSION = "2.2.6"
 CARD_STATIC_URL = "/deyecloud/frontend"
@@ -49,24 +54,56 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the DeyeCloud integration and bundled dashboard card."""
     await _async_register_frontend(hass)
+    async_register_services(hass)
     return True
+
+
+async def _async_read_system_settings(controller, inverters) -> dict:
+    """Read decoded /config/system values to seed control entity states."""
+    system = {}
+    for sn in inverters:
+        try:
+            values = await controller.async_read_system(sn)
+        except DeyeCloudControlError as exc:
+            _LOGGER.debug("Could not read system settings for %s: %s", sn, exc)
+            continue
+        if values:
+            system[sn] = values
+    return system
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up DeyeCloud from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     await _async_register_frontend(hass)
+    async_register_services(hass)
+
+    coordinator = DeyeCloudCoordinator(hass, entry)
+    await coordinator.async_config_entry_first_refresh()
+
+    entry_data = {"coordinator": coordinator, "platforms": list(PLATFORMS)}
+    if entry.data.get(CONF_ENABLE_CONTROL):
+        controller = DeyeCloudController(coordinator)
+        inverters = control_inverters(coordinator)
+        entry_data.update(
+            controller=controller,
+            inverters=inverters,
+            system=await _async_read_system_settings(controller, inverters),
+        )
+        entry_data["platforms"] += CONTROL_PLATFORMS
+    hass.data[DOMAIN][entry.entry_id] = entry_data
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, entry_data["platforms"])
 
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a DeyeCloud config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    platforms = hass.data.get(DOMAIN, {}).get(entry.entry_id, {}).get("platforms", PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, platforms)
 
     if unload_ok:
         hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)

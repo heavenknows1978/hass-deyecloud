@@ -13,7 +13,8 @@
           "start_month": "Start month",
           "company_id": "Company ID (optional)",
           "card_language": "Card language",
-          "scan_interval": "Update interval (minutes)"
+          "scan_interval": "Update interval (minutes)",
+          "enable_control": "Enable remote control (changes real inverter settings)"
         }
       }
     },
@@ -36,7 +37,8 @@
           "start_month": "Start month",
           "company_id": "Company ID (optional)",
           "card_language": "Card language",
-          "scan_interval": "Update interval (minutes)"
+          "scan_interval": "Update interval (minutes)",
+          "enable_control": "Enable remote control (changes real inverter settings)"
         }
       }
     },

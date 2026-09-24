@@ -27,3 +27,7 @@ CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_SCAN_INTERVAL = 1
 MIN_SCAN_INTERVAL = 1
 MAX_SCAN_INTERVAL = 60
+
+# Remote control entities/services (#13). Off by default because they change
+# real inverter and battery settings.
+CONF_ENABLE_CONTROL = "enable_control"

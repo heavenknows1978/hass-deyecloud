@@ -21,6 +21,7 @@ from .const import (
     DEFAULT_CARD_LANGUAGE,
     CARD_LANGUAGES,
     CONF_SCAN_INTERVAL,
+    CONF_ENABLE_CONTROL,
     DEFAULT_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
     MAX_SCAN_INTERVAL,
@@ -87,6 +88,10 @@ def _data_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             vol.Coerce(int),
             vol.Range(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
         ),
+        vol.Required(
+            CONF_ENABLE_CONTROL,
+            default=defaults.get(CONF_ENABLE_CONTROL, False),
+        ): bool,
     })
 
 

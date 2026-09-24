@@ -13,7 +13,8 @@
           "start_month": "Tháng bắt đầu",
           "company_id": "Company ID (không bắt buộc)",
           "card_language": "Ngôn ngữ thẻ",
-          "scan_interval": "Chu kỳ cập nhật (phút)"
+          "scan_interval": "Chu kỳ cập nhật (phút)",
+          "enable_control": "Bật điều khiển từ xa (thay đổi cài đặt thật của inverter)"
         }
       }
     },
@@ -36,7 +37,8 @@
           "start_month": "Tháng bắt đầu",
           "company_id": "Company ID (không bắt buộc)",
           "card_language": "Ngôn ngữ thẻ",
-          "scan_interval": "Chu kỳ cập nhật (phút)"
+          "scan_interval": "Chu kỳ cập nhật (phút)",
+          "enable_control": "Bật điều khiển từ xa (thay đổi cài đặt thật của inverter)"
         }
       }
     },

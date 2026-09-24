@@ -569,6 +569,10 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
     """Coordinator for Deye Cloud data updates."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry):
+        global HISTORY_START_MONTH
+        HISTORY_START_MONTH = _validate_history_start_month(entry.data.get(CONF_START_MONTH, "2024-01"))
+        _LOGGER.debug("HISTORY_START_MONTH set to: %s", HISTORY_START_MONTH)
+
         super().__init__(
             hass,
             _LOGGER,
@@ -589,32 +593,41 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
         self._device_list_last_update: dict[str, datetime] = {}
         self._measure_points_cache: dict[str, list[str]] = {}
 
-    async def _async_update_data(self) -> dict:
-        """Fetch data from API."""
-        username = self.entry.data[CONF_USERNAME]
-        password = self.entry.data[CONF_PASSWORD]
-        app_id = self.entry.data[CONF_APP_ID]
-        app_secret = self.entry.data[CONF_APP_SECRET]
-        base_url = self.entry.data[CONF_BASE_URL]
-        company_id = self.entry.data.get(CONF_COMPANY_ID)
+    @property
+    def base_url(self) -> str:
+        """Return the configured DeyeCloud API base URL."""
+        return self.entry.data[CONF_BASE_URL]
 
+    async def async_ensure_token(self) -> str:
+        """Return a valid access token, refreshing it when it expires."""
         now_utc = dt_util.utcnow()
         if not self.token or not self.token_expiry or self.token_expiry <= now_utc:
-            try:
-                self.token = await _async_get_token(
-                    self.session,
-                    username,
-                    password,
-                    app_id,
-                    app_secret,
-                    base_url,
-                    company_id,
-                )
-                # Keep conservative expiry. If API provides expiresIn, replace this with API value.
-                self.token_expiry = dt_util.utcnow() + timedelta(minutes=25)
-                _LOGGER.debug("Token refreshed, valid until %s", self.token_expiry)
-            except Exception as exc:
-                raise UpdateFailed(f"Token refresh failed: {exc}") from exc
+            self.token = await _async_get_token(
+                self.session,
+                self.entry.data[CONF_USERNAME],
+                self.entry.data[CONF_PASSWORD],
+                self.entry.data[CONF_APP_ID],
+                self.entry.data[CONF_APP_SECRET],
+                self.base_url,
+                self.entry.data.get(CONF_COMPANY_ID),
+            )
+            # Keep conservative expiry. If API provides expiresIn, replace this with API value.
+            self.token_expiry = dt_util.utcnow() + timedelta(minutes=25)
+            _LOGGER.debug("Token refreshed, valid until %s", self.token_expiry)
+        return self.token
+
+    def invalidate_token(self) -> None:
+        """Force a token refresh on the next request."""
+        self.token = None
+
+    async def _async_update_data(self) -> dict:
+        """Fetch data from API."""
+        base_url = self.base_url
+
+        try:
+            await self.async_ensure_token()
+        except Exception as exc:
+            raise UpdateFailed(f"Token refresh failed: {exc}") from exc
 
         try:
             stations = await _async_station_list(self.session, self.token, base_url)
@@ -1280,12 +1293,7 @@ async def async_setup_entry(
     """Set up Deye Cloud sensors from a config entry."""
     _LOGGER.info("Setting up DeyeCloud integration")
 
-    global HISTORY_START_MONTH
-    HISTORY_START_MONTH = _validate_history_start_month(entry.data.get(CONF_START_MONTH, "2024-01"))
-    _LOGGER.debug("HISTORY_START_MONTH set to: %s", HISTORY_START_MONTH)
-
-    coordinator = DeyeCloudCoordinator(hass, entry)
-    await coordinator.async_config_entry_first_refresh()
+    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
     entities = []
     unique_ids: set[str] = set()

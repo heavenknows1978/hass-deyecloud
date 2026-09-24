@@ -127,6 +127,44 @@ Depending on your region:
 | Start Month | First month to fetch history from (e.g. `2024-01`) |
 | Company ID  | Optional. Required for some installer/business accounts |
 | Update interval | Polling interval in minutes (1–60, default 1). Raise it if DeyeCloud API quotas are reached. Can be changed later under **Configure** without re-entering credentials. |
+| Enable remote control | Off by default. Adds inverter control entities and services (see below). |
+
+---
+
+## 🎛️ Remote Control (experimental)
+
+Enable **Enable remote control** under **Settings → Devices & services → DeyeCloud → Configure**. These entities and services change real inverter and battery settings through the DeyeCloud OpenAPI, so test each one carefully on your system first.
+
+Entities added to each inverter device:
+
+| Entity | Type | DeyeCloud endpoint |
+|--------|------|--------------------|
+| Work mode (`SELLING_FIRST` / `ZERO_EXPORT_TO_LOAD` / `ZERO_EXPORT_TO_CT`) | select | `/order/sys/workMode/update` |
+| Energy pattern (`BATTERY_FIRST` / `LOAD_FIRST`) | select | `/order/sys/energyPattern/update` |
+| Grid charge | switch | `/order/battery/modeControl` |
+| Solar sell | switch | `/order/sys/solarSell/control` |
+| Time of use | switch | `/strategy/dynamicControl` |
+| Max charge / discharge current (A) | number | `/order/battery/parameter/update` |
+| Grid charge current (A) | number | `/strategy/dynamicControl` |
+| Max sell / solar power (W) | number | `/order/sys/power/update` |
+
+Services:
+
+- `deyecloud.set_time_of_use`: replace the six time-of-use slots (time, power, SOC, grid charge) and the active days.
+- `deyecloud.set_battery_strategy`: apply `force_charge`, `self_consumption` (backup reserve), `hold_soc` or `feed_in` with a target SOC. This overwrites all six time-of-use slots.
+- `deyecloud.read_settings`: return the raw register map read from the inverter (plus decoded `/config/system` values where supported).
+
+Every command waits for the inverter to confirm it through `/order/{orderId}`. An unanswered command is retried once and then reported as an error. Most inverters cannot report these settings back in decoded form, so the entities show the last value the inverter confirmed.
+
+Example automation action, force charging from the grid during a cheap tariff:
+
+```yaml
+action: deyecloud.set_battery_strategy
+data:
+  strategy: force_charge
+  target_soc: 90
+  power: 3000
+```
 
 ---
 

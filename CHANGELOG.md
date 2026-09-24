@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.4.0
+
+- Added experimental remote control (#13), off by default behind the new **Enable remote control** option:
+  - Selects: work mode, energy pattern.
+  - Switches: grid charge, solar sell, time of use.
+  - Numbers: max charge/discharge current, grid charge current, max sell/solar power.
+  - Services: `deyecloud.set_time_of_use`, `deyecloud.set_battery_strategy` (force charge, self consumption/backup reserve, hold SOC, feed-in) and `deyecloud.read_settings` (#18).
+- Every command is confirmed through `/order/{orderId}`, retried once if the inverter does not answer, and reported as an error otherwise.
+- The data coordinator is now created once per config entry and shared by all platforms, so an unreachable DeyeCloud now raises `ConfigEntryNotReady` before any platform is set up.
+
 ## 2.2.6
 
 - Fixed sensor setup on Home Assistant 2026.8+ by passing the config entry to the data coordinator explicitly (#19). Minimum Home Assistant version is now 2024.11.

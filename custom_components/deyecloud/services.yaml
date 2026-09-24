@@ -1,0 +1,127 @@
+set_time_of_use:
+  name: Set time of use
+  description: >-
+    Replace the inverter's six time-of-use slots and enable or disable the
+    schedule. Each slot runs from its start time until the next slot starts.
+    Requires remote control to be enabled in the integration options.
+  fields:
+    device_id:
+      name: Inverter
+      description: DeyeCloud inverter device. Optional when there is only one inverter.
+      selector:
+        device:
+          integration: deyecloud
+    device_sn:
+      name: Inverter serial
+      description: Alternative to the device, e.g. 2306066781.
+      selector:
+        text:
+    enabled:
+      name: Enabled
+      default: true
+      selector:
+        boolean:
+    days:
+      name: Days
+      description: Days the schedule applies to. Leave empty for every day.
+      selector:
+        select:
+          multiple: true
+          options:
+            - SUNDAY
+            - MONDAY
+            - TUESDAY
+            - WEDNESDAY
+            - THURSDAY
+            - FRIDAY
+            - SATURDAY
+    slots:
+      name: Slots
+      description: >-
+        Exactly six slots, each with time (HH:MM), power (W), soc (%),
+        grid_charge (allow charging from the grid) and generation
+        (allow generator charging).
+      required: true
+      example: >-
+        [{"time": "00:00", "power": 3000, "soc": 90, "grid_charge": true},
+        {"time": "06:00", "power": 3000, "soc": 30},
+        {"time": "10:00", "power": 3000, "soc": 30},
+        {"time": "14:00", "power": 3000, "soc": 30},
+        {"time": "17:00", "power": 3000, "soc": 20},
+        {"time": "22:00", "power": 3000, "soc": 20}]
+      selector:
+        object:
+
+set_battery_strategy:
+  name: Set battery strategy
+  description: >-
+    Apply a battery strategy with dynamic control. This overwrites all six
+    time-of-use slots with the same target so the strategy applies around the
+    clock until changed. Requires remote control to be enabled.
+  fields:
+    device_id:
+      name: Inverter
+      selector:
+        device:
+          integration: deyecloud
+    device_sn:
+      name: Inverter serial
+      selector:
+        text:
+    strategy:
+      name: Strategy
+      description: >-
+        force_charge: charge from the grid up to target SOC.
+        self_consumption: use solar and battery down to target SOC (backup reserve).
+        hold_soc: keep the battery at target SOC.
+        feed_in: export as much as possible down to target SOC.
+      required: true
+      selector:
+        select:
+          options:
+            - force_charge
+            - self_consumption
+            - hold_soc
+            - feed_in
+    target_soc:
+      name: Target SOC
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+    power:
+      name: Power
+      description: Charge/discharge power per slot. Defaults to the inverter rated power.
+      selector:
+        number:
+          min: 0
+          max: 50000
+          step: 100
+          unit_of_measurement: W
+    work_mode:
+      name: Work mode
+      description: Override the work mode used by the strategy.
+      selector:
+        select:
+          options:
+            - SELLING_FIRST
+            - ZERO_EXPORT_TO_LOAD
+            - ZERO_EXPORT_TO_CT
+
+read_settings:
+  name: Read settings
+  description: >-
+    Read the inverter settings that dynamic control can change and return
+    the raw register map plus decoded system settings where supported.
+  fields:
+    device_id:
+      name: Inverter
+      selector:
+        device:
+          integration: deyecloud
+    device_sn:
+      name: Inverter serial
+      selector:
+        text:
