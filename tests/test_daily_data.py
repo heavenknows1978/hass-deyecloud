@@ -110,5 +110,79 @@ class DeviceBatchTests(unittest.TestCase):
         self.assertEqual(serials, [serial for batch in batches for serial in batch])
 
 
+class MeasurePointTests(unittest.TestCase):
+    """/device/measurePoints can repeat keys, which duplicated unique IDs."""
+
+    def test_unique_keys_drops_duplicates_and_blanks(self):
+        keys = ["GeneratorFrequency", "GenVoltage", "", None, "GeneratorFrequency", "GenVoltage", "PV4"]
+        self.assertEqual(
+            ["GeneratorFrequency", "GenVoltage", "PV4"],
+            DATA.unique_keys(keys),
+        )
+
+
+class MonthEndTodayTests(unittest.TestCase):
+    """Issue #25: Today is derived from the monthly bucket on the last day."""
+
+    def setUp(self):
+        # Values captured from DeyeCloud for September 2026 (station 61052153).
+        self.month = {
+            "year": 2026,
+            "month": 9,
+            "generationValue": 519.7,
+            "consumptionValue": 904.7,
+            "gridValue": 13.2,
+            "purchaseValue": 421.4,
+            "chargeValue": 251.4,
+            "dischargeValue": 228.2,
+        }
+        self.previous_days = [
+            {"generationValue": 300.0, "consumptionValue": 500.0, "gridValue": 10.0,
+             "purchaseValue": 200.0, "chargeValue": 150.0, "dischargeValue": 120.0},
+            {"generationValue": 203.9, "consumptionValue": 388.9, "gridValue": 2.7,
+             "purchaseValue": 213.3, "chargeValue": 92.7, "dischargeValue": 107.0},
+        ]
+
+    def test_subtracts_closed_days_from_month_total(self):
+        record = DATA.derive_today_from_month("2026-09-30", self.month, self.previous_days, None)
+        self.assertEqual("2026-09-30", record["date"])
+        self.assertTrue(record["_deyecloud_derived"])
+        self.assertAlmostEqual(15.8, record["generationValue"])
+        self.assertAlmostEqual(15.8, record["consumptionValue"])
+        self.assertAlmostEqual(0.5, record["gridValue"])
+        self.assertAlmostEqual(8.1, record["purchaseValue"])
+        self.assertAlmostEqual(8.7, record["chargeValue"])
+        self.assertAlmostEqual(1.2, record["dischargeValue"])
+
+    def test_never_negative(self):
+        month = dict(self.month, gridValue=12.6)
+        record = DATA.derive_today_from_month("2026-09-30", month, self.previous_days, None)
+        self.assertEqual(0.0, record["gridValue"])
+
+    def test_rounding_wobble_does_not_decrease_today(self):
+        cached = {"date": "2026-09-30", "generationValue": 15.9}
+        record = DATA.derive_today_from_month("2026-09-30", self.month, self.previous_days, cached)
+        self.assertAlmostEqual(15.9, record["generationValue"])
+
+    def test_ignores_cached_value_from_another_day(self):
+        cached = {"date": "2026-09-29", "generationValue": 25.0}
+        record = DATA.derive_today_from_month("2026-09-30", self.month, self.previous_days, cached)
+        self.assertAlmostEqual(15.8, record["generationValue"])
+
+    def test_placeholder_does_not_block_real_value(self):
+        placeholder = DATA.empty_daily_record("2026-09-30")
+        record = DATA.derive_today_from_month("2026-09-30", self.month, self.previous_days, placeholder)
+        self.assertAlmostEqual(15.8, record["generationValue"])
+
+    def test_missing_month_record_returns_none(self):
+        self.assertIsNone(DATA.derive_today_from_month("2026-09-30", None, self.previous_days, None))
+
+    def test_missing_metric_stays_unknown(self):
+        month = dict(self.month)
+        del month["chargeValue"]
+        record = DATA.derive_today_from_month("2026-09-30", month, self.previous_days, None)
+        self.assertIsNone(record["chargeValue"])
+
+
 if __name__ == "__main__":
     unittest.main()

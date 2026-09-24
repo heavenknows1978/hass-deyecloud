@@ -125,6 +125,8 @@ Depending on your region:
 | App Secret  | From developer portal |
 | Base URL    | Based on your region |
 | Start Month | First month to fetch history from (e.g. `2024-01`) |
+| Company ID  | Optional. Required for some installer/business accounts |
+| Update interval | Polling interval in minutes (1–60, default 1). Raise it if DeyeCloud API quotas are reached. Can be changed later under **Configure** without re-entering credentials. |
 
 ---
 

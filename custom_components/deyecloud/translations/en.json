@@ -12,7 +12,8 @@
           "base_url": "Base URL",
           "start_month": "Start month",
           "company_id": "Company ID (optional)",
-          "card_language": "Card language"
+          "card_language": "Card language",
+          "scan_interval": "Update interval (minutes)"
         }
       }
     },
@@ -25,7 +26,7 @@
     "step": {
       "init": {
         "title": "Configure DeyeCloud",
-        "description": "Update your DeyeCloud OpenAPI credentials and card language.",
+        "description": "Update your DeyeCloud OpenAPI credentials, card language and polling interval. Increase the interval if DeyeCloud API quotas are reached.",
         "data": {
           "username": "Username or email",
           "password": "Password",
@@ -34,7 +35,8 @@
           "base_url": "Base URL",
           "start_month": "Start month",
           "company_id": "Company ID (optional)",
-          "card_language": "Card language"
+          "card_language": "Card language",
+          "scan_interval": "Update interval (minutes)"
         }
       }
     },

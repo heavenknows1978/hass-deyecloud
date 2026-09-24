@@ -20,6 +20,10 @@ from .const import (
     CONF_CARD_LANGUAGE,
     DEFAULT_CARD_LANGUAGE,
     CARD_LANGUAGES,
+    CONF_SCAN_INTERVAL,
+    DEFAULT_SCAN_INTERVAL,
+    MIN_SCAN_INTERVAL,
+    MAX_SCAN_INTERVAL,
 )
 from .api import async_get_token
 
@@ -27,6 +31,8 @@ from .api import async_get_token
 DEFAULT_BASE_URL = "https://eu1-developer.deyecloud.com/v1.0"
 DEFAULT_START_MONTH = "2024-01"
 
+# Fields that affect authentication/station access. Changing only the start
+# month or polling interval must not require a round trip to DeyeCloud.
 _CONNECTION_FIELDS = (
     CONF_USERNAME,
     CONF_PASSWORD,
@@ -74,6 +80,13 @@ def _data_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             CONF_CARD_LANGUAGE,
             default=defaults.get(CONF_CARD_LANGUAGE, DEFAULT_CARD_LANGUAGE),
         ): vol.In(CARD_LANGUAGES),
+        vol.Required(
+            CONF_SCAN_INTERVAL,
+            default=defaults.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+        ): vol.All(
+            vol.Coerce(int),
+            vol.Range(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
+        ),
     })
 
 

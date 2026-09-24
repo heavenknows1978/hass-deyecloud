@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.2.6
+
+- Fixed sensor setup on Home Assistant 2026.8+ by passing the config entry to the data coordinator explicitly (#19). Minimum Home Assistant version is now 2024.11.
+- Fixed Today sensors freezing on the last day of every month (#25). DeyeCloud returns no daily bucket for the in-progress last day of a month, so Today is now derived from the current-month total minus the closed days.
+- Current-month sensors now refresh every 15 minutes instead of up to every 6 hours (#27).
+- Added a configurable update interval (1–60 minutes) to the setup and options forms (#29). Changing only the interval or start month no longer re-validates credentials.
+- Reduced API calls per poll: the station device list is cached for one hour.
+- Micro inverters, batteries, meters, optimizers and other non-collector devices in a station are now discovered, and devices are named after their actual type (#26, #28).
+- Fixed duplicate unique ID errors (`GeneratorFrequency`, `GenVoltage`) caused by repeated keys in `/device/measurePoints`.
+- Added a selectable card language (Home Assistant / English / Russian / Vietnamese) and a Russian translation (#21, thanks @hacky-swan).
+
 ## 2.2.5
 
 - Fixed the permanent loading spinner in Home Assistant's card picker.

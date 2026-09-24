@@ -2,7 +2,7 @@
   "name": "DeyeCloud Integration",
   "domain": "deyecloud",
   "version": "2.2.1",
-  "homeassistant": "2022.5.0",
+  "homeassistant": "2024.11.0",
   "codeowners": [
     "@heavenknows1978"
   ],
