@@ -1,4 +1,4 @@
-const CARD_VERSION = "2.5.1";
+const CARD_VERSION = "2.5.2";
 const CARD_TAG = "deyecloud-energy-flow-card-v3";
 const LEGACY_CARD_TAG = "deyecloud-energy-flow-card";
 const EDITOR_TAG = "deyecloud-energy-flow-card-v3-editor";
@@ -849,6 +849,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       ["discharge", t.dischargeToday, values.batteryDischargeToday, entities.batteryDischargeToday?.entityId],
     ];
 
+    const controlsHtml = this._controlsSection(stationId, t, locale);
     this.shadowRoot.innerHTML = `
       ${this._styles()}
       <ha-card class="energy-card ${animationClass}">
@@ -867,6 +868,8 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           </div>
         </header>
 
+        <div class="card-body ${controlsHtml ? "has-controls" : ""}">
+        <div class="main-col">
         <section class="diagram-stage" aria-label="${escapeHtml(t.diagramLabel)}">
           <div class="ambient ambient-one"></div>
           <div class="ambient ambient-two"></div>
@@ -982,8 +985,9 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
                 </button>`).join("")}
             </div>
           </section>`}
-
-        ${this._controlsSection(stationId, t, locale)}
+        </div>
+        ${controlsHtml ? `<div class="side-col">${controlsHtml}</div>` : ""}
+        </div>
       </ha-card>`;
 
     const select = this.shadowRoot.getElementById("station-select");
@@ -2096,6 +2100,21 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           .flow-node, .daily-metric { transition: none; }
         }
 
+        /* ---------------- Two-column layout ----------------
+           Each column is its own size container, so every @container rule
+           and cqw size inside adapts to the column it sits in. */
+        .main-col, .side-col { min-width: 0; container-type: inline-size; }
+        @container (min-width: 1000px) {
+          .card-body.has-controls {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(380px, 1fr);
+            align-items: start;
+          }
+          .card-body.has-controls .side-col .control-section { margin: 4px 16px 18px 4px; }
+          .card-body.has-controls .main-col > .daily-section { margin-right: 8px; }
+          .card-body.has-controls .main-col > .performance-section { margin-right: 8px; }
+        }
+
         /* ---------------- Inverter controls ---------------- */
         .control-section {
           position: relative;
@@ -2107,7 +2126,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
             linear-gradient(160deg, color-mix(in srgb, var(--deye-battery-soft) 42%, transparent), transparent 38%),
             color-mix(in srgb, var(--deye-card) 97%, var(--deye-surface) 3%);
         }
-        .daily-section + .control-section { margin-top: -4px; }
+        .main-col:has(> .daily-section:last-child) + .side-col .control-section { margin-top: -4px; }
         .ctrl-kicker { color: var(--deye-battery); background: var(--deye-battery-soft); }
         .ctrl-meta { color: var(--deye-muted); font-size: 11px; text-align: right; }
         .ctrl-meta b { color: var(--deye-text); font-weight: 650; }
@@ -2217,7 +2236,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         .ctrl-mode.pending .segmented { opacity: .6; }
 
         /* Toggle tiles */
-        .ctrl-toggles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .ctrl-toggles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
         .ctrl-toggle, .ctrl-limit {
           position: relative;
           min-width: 0;
@@ -2487,12 +2506,15 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         @keyframes ctrlSpin { to { transform: rotate(360deg); } }
         @keyframes ctrlRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+        @container (min-width: 640px) {
+          /* Three switch tiles in a row only when each keeps its full label. */
+          .ctrl-toggles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
         @container (min-width: 720px) {
           .ctrl-modes { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
           .ctrl-limits { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
         @container (max-width: 520px) {
-          .ctrl-toggles { grid-template-columns: 1fr; }
           .ctrl-toggle { min-height: 58px; }
           .segment { font-size: 11px; padding: 6px 4px; }
         }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.2
+
+- Energy Flow card: on wide cards (1000px and up), **Inverter control** moves into a second column next to the power-flow diagram, efficiency and today's energy.
+- Each column sizes its own content, so the controls stay comfortable in the side column. The three switch tiles share one row only when there is room for their full labels.
+
 ## 2.5.1
 
 - Energy pattern (Battery first / Load first) is now read from single-phase hybrids through a Modbus register read (`0x00F3` via `/order/customControl`), so the card and the select show the real value instead of `unknown`.
