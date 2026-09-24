@@ -1,4 +1,4 @@
-const CARD_VERSION = "2.5.0";
+const CARD_VERSION = "2.5.1";
 const CARD_TAG = "deyecloud-energy-flow-card-v3";
 const LEGACY_CARD_TAG = "deyecloud-energy-flow-card";
 const EDITOR_TAG = "deyecloud-energy-flow-card-v3-editor";

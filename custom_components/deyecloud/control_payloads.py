@@ -230,3 +230,47 @@ def decode_settings(registers: dict | None) -> dict:
     if len(slots) == TOU_SLOT_COUNT:
         settings["time_of_use_slots"] = slots
     return settings
+
+
+# Energy pattern is not part of the dynamic-control read. On single-phase
+# hybrids it lives in holding register 0x00F3 and is read with a Modbus
+# function-3 request through /order/customControl.
+ENERGY_PATTERN_REGISTER = 0x00F3
+_ENERGY_PATTERN_BY_VALUE = {0: "BATTERY_FIRST", 1: "LOAD_FIRST"}
+
+
+def _modbus_crc(data: bytes) -> int:
+    crc = 0xFFFF
+    for byte in data:
+        crc ^= byte
+        for _ in range(8):
+            crc = (crc >> 1) ^ 0xA001 if crc & 1 else crc >> 1
+    return crc
+
+
+def build_modbus_read(register: int, count: int = 1, slave: int = 1) -> str:
+    """Return a Modbus RTU "read holding registers" frame as spaced hex."""
+    frame = bytes([slave, 3, register >> 8, register & 0xFF, count >> 8, count & 0xFF])
+    crc = _modbus_crc(frame)
+    frame += bytes([crc & 0xFF, crc >> 8])
+    return " ".join(f"{byte:02X}" for byte in frame)
+
+
+def parse_modbus_read(response: str | None) -> list[int] | None:
+    """Return register values from a function-3 response, or None if invalid."""
+    try:
+        data = bytes.fromhex(str(response or "").replace(" ", ""))
+    except ValueError:
+        return None
+    if len(data) < 5 or data[1] != 3 or len(data) < 3 + data[2] + 2:
+        return None
+    if _modbus_crc(data[: 3 + data[2]]) != data[3 + data[2]] | (data[4 + data[2]] << 8):
+        return None
+    return [(data[3 + i] << 8) | data[4 + i] for i in range(0, data[2], 2)]
+
+
+def decode_energy_pattern(values: list[int] | None) -> str | None:
+    """Map the energy-pattern register value to the API option."""
+    if not values:
+        return None
+    return _ENERGY_PATTERN_BY_VALUE.get(values[0])

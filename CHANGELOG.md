@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.1
+
+- Energy pattern (Battery first / Load first) is now read from single-phase hybrids through a Modbus register read (`0x00F3` via `/order/customControl`), so the card and the select show the real value instead of `unknown`.
+- Energy Flow card fits narrow dashboard columns: sizes now scale with the card width instead of the browser window, diagram nodes stack icon above text, the floating flow labels are hidden when they would overlap the nodes, and Today's energy uses two columns.
+
 ## 2.5.0
 
 - Energy Flow card: new **Inverter control** section, shown when remote control is enabled.

@@ -127,6 +127,27 @@ class DecodeSettingsTests(unittest.TestCase):
         self.assertEqual({}, CP.decode_settings(None))
 
 
+class ModbusTests(unittest.TestCase):
+
+    def test_builds_read_frame_with_crc(self):
+        # Frame sent to inverter 2306066781 for registers 0x00F3..0x00F5.
+        self.assertEqual("01 03 00 F3 00 03 F5 F8", CP.build_modbus_read(0x00F3, 3))
+
+    def test_parses_real_response(self):
+        self.assertEqual([1, 2, 0], CP.parse_modbus_read("010306000100020000BD75"))
+
+    def test_rejects_bad_crc_or_garbage(self):
+        self.assertIsNone(CP.parse_modbus_read("010306000100020000BD76"))
+        self.assertIsNone(CP.parse_modbus_read("zz"))
+        self.assertIsNone(CP.parse_modbus_read(None))
+
+    def test_decodes_energy_pattern(self):
+        self.assertEqual("LOAD_FIRST", CP.decode_energy_pattern([1]))
+        self.assertEqual("BATTERY_FIRST", CP.decode_energy_pattern([0]))
+        self.assertIsNone(CP.decode_energy_pattern([7]))
+        self.assertIsNone(CP.decode_energy_pattern(None))
+
+
 class OrderStatusTests(unittest.TestCase):
 
     def test_order_states(self):

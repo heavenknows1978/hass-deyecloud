@@ -11,7 +11,15 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import DOMAIN
-from .control_payloads import decode_settings, order_finished, order_succeeded
+from .control_payloads import (
+    ENERGY_PATTERN_REGISTER,
+    build_modbus_read,
+    decode_energy_pattern,
+    decode_settings,
+    order_finished,
+    order_succeeded,
+    parse_modbus_read,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -157,10 +165,31 @@ class DeyeCloudController:
         ):
             if system.get(system_key) is not None:
                 settings[key] = system[system_key]
+        if settings and "energy_pattern" not in settings:
+            # Decoded single-phase map: read the pattern register directly.
+            try:
+                pattern = await self.async_read_energy_pattern(device_sn)
+            except DeyeCloudControlError as exc:
+                _LOGGER.debug("Could not read energy pattern of %s: %s", device_sn, exc)
+                pattern = None
+            if pattern:
+                settings["energy_pattern"] = pattern
         self.settings[str(device_sn)] = settings
         self.settings_read_at[str(device_sn)] = datetime.now(timezone.utc).isoformat()
         async_dispatcher_send(self._coordinator.hass, settings_signal(str(device_sn)))
         return settings
+
+    async def async_read_energy_pattern(self, device_sn: str) -> str | None:
+        """Read the energy pattern with a Modbus read through customControl."""
+        order = await self.async_command(
+            "/order/customControl",
+            {
+                "deviceSn": str(device_sn),
+                "content": build_modbus_read(ENERGY_PATTERN_REGISTER),
+                "timeoutSeconds": 60,
+            },
+        )
+        return decode_energy_pattern(parse_modbus_read(order.get("analysisResult")))
 
     async def async_read_system(self, device_sn: str) -> dict | None:
         """Return decoded /config/system values, or None if unsupported.
