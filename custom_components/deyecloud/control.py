@@ -1,6 +1,7 @@
 """Remote control of Deye inverters through the DeyeCloud OpenAPI (#13)."""
 
 import asyncio
+from datetime import datetime, timezone
 import json
 import logging
 
@@ -42,6 +43,7 @@ class DeyeCloudController:
         self._locks: dict[str, asyncio.Lock] = {}
         # Last decoded settings per inverter, see decode_settings().
         self.settings: dict[str, dict] = {}
+        self.settings_read_at: dict[str, str] = {}
 
     async def _request(self, method: str, path: str, payload: dict | None = None) -> dict:
         coordinator = self._coordinator
@@ -156,6 +158,7 @@ class DeyeCloudController:
             if system.get(system_key) is not None:
                 settings[key] = system[system_key]
         self.settings[str(device_sn)] = settings
+        self.settings_read_at[str(device_sn)] = datetime.now(timezone.utc).isoformat()
         async_dispatcher_send(self._coordinator.hass, settings_signal(str(device_sn)))
         return settings
 

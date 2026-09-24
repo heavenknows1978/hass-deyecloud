@@ -24,7 +24,7 @@ CONTROL_PLATFORMS: list[Platform] = [Platform.SWITCH, Platform.SELECT, Platform.
 # Each read is a command delivered to the inverter, so keep it infrequent.
 SETTINGS_REFRESH_INTERVAL = timedelta(minutes=30)
 
-CARD_VERSION = "2.2.6"
+CARD_VERSION = "2.5.0"
 CARD_STATIC_URL = "/deyecloud/frontend"
 CARD_MODULE_URL = (
     f"{CARD_STATIC_URL}/deyecloud-energy-flow-card.js?v={CARD_VERSION}"

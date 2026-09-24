@@ -70,6 +70,7 @@ title: FJC Solar Plant    # optional
 show_daily: true
 show_efficiency: true
 animation: true
+show_controls: true      # inverter controls, when remote control is enabled
 ```
 
 The card automatically uses the integration's station sensors for:
@@ -79,6 +80,8 @@ The card automatically uses the integration's station sensors for:
 - Battery charging/discharging direction, power and SOC
 - Today's production, consumption, import, export, charge and discharge
 - Instant self-sufficiency, on-site PV use and power-balance diagnostics
+
+When **Enable remote control** is on, the card adds an **Inverter control** section: work mode and energy priority pickers, grid charge / solar sell / time-of-use switches, a 24-hour time-of-use timeline with the current slot highlighted, and editable current and power limits. Every change asks for confirmation before it is sent, shows progress while the inverter is confirming, and reports success or failure. Hide it with `show_controls: false`.
 
 Each diagram node can be tapped to open the corresponding Home Assistant entity. The animation updates whenever Home Assistant receives a new state; the DeyeCloud integration currently polls the cloud every minute.
 

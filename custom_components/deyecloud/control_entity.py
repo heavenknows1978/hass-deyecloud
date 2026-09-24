@@ -65,6 +65,7 @@ class DeyeControlEntity(RestoreEntity):
         self._attr_name = name
         self._attr_icon = icon
         self._attr_unique_id = f"{device_sn}_control_{key}"
+        self._control_key = key
 
     @property
     def device_info(self):
@@ -75,6 +76,19 @@ class DeyeControlEntity(RestoreEntity):
             "manufacturer": "Deye",
             "model": "Inverter",
         }
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Let the energy-flow card discover controls by station."""
+        attrs = {
+            "station_id": self._inverter["station_id"],
+            "device_sn": self._device_sn,
+            "control_key": self._control_key,
+        }
+        read_at = self._controller.settings_read_at.get(self._device_sn)
+        if read_at:
+            attrs["settings_read_at"] = read_at
+        return attrs
 
     def _apply_setting(self, value) -> None:
         """Store a restored (string) or read-back value as entity state."""
@@ -105,5 +119,6 @@ class DeyeControlEntity(RestoreEntity):
 
     @callback
     def _handle_settings(self) -> None:
-        if self._update_from_settings():
-            self.async_write_ha_state()
+        self._update_from_settings()
+        # Always write: settings_read_at changed even if the value did not.
+        self.async_write_ha_state()

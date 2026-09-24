@@ -87,6 +87,14 @@ class DeyeTimeOfUseSwitch(_DeyeSwitch):
     def __init__(self, entry_data, device_sn):
         super().__init__(entry_data, device_sn, "time_of_use", "Time of use", "mdi:clock-time-four-outline")
 
+    @property
+    def extra_state_attributes(self) -> dict:
+        attrs = super().extra_state_attributes
+        slots = self._controller.settings.get(self._device_sn, {}).get("time_of_use_slots")
+        if slots:
+            attrs["slots"] = slots
+        return attrs
+
     def _payload(self, on: bool) -> dict:
         # Fields left out of dynamicControl keep their current value, so this
         # only toggles the schedule without touching its slots.

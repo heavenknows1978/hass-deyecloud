@@ -1,4 +1,4 @@
-const CARD_VERSION = "2.2.6";
+const CARD_VERSION = "2.5.0";
 const CARD_TAG = "deyecloud-energy-flow-card-v3";
 const LEGACY_CARD_TAG = "deyecloud-energy-flow-card";
 const EDITOR_TAG = "deyecloud-energy-flow-card-v3-editor";
@@ -114,6 +114,44 @@ const STRINGS = {
     unknownError: "Lỗi không xác định",
     cardName: "Luồng năng lượng DeyeCloud",
     cardDescription: "Luồng điện mặt trời, pin, lưới và tải theo thời gian thực.",
+    controlsTitle: "Điều khiển inverter",
+    controlsHint: "Thử nghiệm · mọi thay đổi đều cần xác nhận",
+    settingsRead: "Đọc cài đặt",
+    notRead: "Chưa đọc",
+    modes: "Chế độ vận hành",
+    functions: "Chức năng",
+    limits: "Giới hạn",
+    workMode: "Chế độ làm việc",
+    energyPattern: "Ưu tiên năng lượng",
+    modeSellingFirst: "Ưu tiên bán",
+    modeZeroLoad: "Zero export tải",
+    modeZeroCt: "Zero export CT",
+    patternBattery: "Ưu tiên pin",
+    patternLoad: "Ưu tiên tải",
+    gridCharge: "Sạc từ lưới",
+    solarSell: "Bán điện PV",
+    timeOfUse: "Lịch TOU",
+    on: "Bật",
+    off: "Tắt",
+    maxChargeCurrent: "Dòng sạc tối đa",
+    maxDischargeCurrent: "Dòng xả tối đa",
+    gridChargeCurrent: "Dòng sạc từ lưới",
+    maxSellPower: "Công suất bán tối đa",
+    maxSolarPower: "Công suất PV tối đa",
+    touSchedule: "Lịch sạc/xả 24 giờ",
+    touNow: "Hiện tại",
+    touTarget: "SOC mục tiêu",
+    touOff: "Lịch TOU đang tắt",
+    confirmTitle: "Áp dụng xuống inverter?",
+    apply: "Áp dụng",
+    cancel: "Hủy",
+    edit: "Sửa",
+    sending: "Đang gửi tới inverter…",
+    confirmed: "Inverter đã xác nhận",
+    failed: "Inverter chưa xác nhận",
+    outOfRange: "Giá trị phải từ {min} đến {max}",
+    inverterLabel: "Inverter",
+    editorControls: "Hiển thị điều khiển inverter",
   },
   ru: {
     locale: "ru-RU",
@@ -167,6 +205,44 @@ const STRINGS = {
     unknownError: "Неизвестная ошибка",
     cardName: "Потоки энергии DeyeCloud",
     cardDescription: "Потоки энергии солнца, аккумулятора, сети и нагрузки в реальном времени.",
+    controlsTitle: "Управление инвертором",
+    controlsHint: "Экспериментально · каждое изменение требует подтверждения",
+    settingsRead: "Настройки прочитаны",
+    notRead: "Ещё не прочитаны",
+    modes: "Режим работы",
+    functions: "Функции",
+    limits: "Ограничения",
+    workMode: "Режим работы",
+    energyPattern: "Приоритет энергии",
+    modeSellingFirst: "Приоритет продажи",
+    modeZeroLoad: "Нулевой экспорт (нагрузка)",
+    modeZeroCt: "Нулевой экспорт (CT)",
+    patternBattery: "Сначала батарея",
+    patternLoad: "Сначала нагрузка",
+    gridCharge: "Заряд от сети",
+    solarSell: "Продажа PV",
+    timeOfUse: "Расписание TOU",
+    on: "Вкл",
+    off: "Выкл",
+    maxChargeCurrent: "Макс. ток заряда",
+    maxDischargeCurrent: "Макс. ток разряда",
+    gridChargeCurrent: "Ток заряда от сети",
+    maxSellPower: "Макс. мощность продажи",
+    maxSolarPower: "Макс. мощность PV",
+    touSchedule: "Расписание заряда/разряда на 24 ч",
+    touNow: "Сейчас",
+    touTarget: "Целевой SOC",
+    touOff: "Расписание TOU выключено",
+    confirmTitle: "Применить на инверторе?",
+    apply: "Применить",
+    cancel: "Отмена",
+    edit: "Изменить",
+    sending: "Отправка на инвертор…",
+    confirmed: "Инвертор подтвердил",
+    failed: "Инвертор не подтвердил",
+    outOfRange: "Значение должно быть от {min} до {max}",
+    inverterLabel: "Инвертор",
+    editorControls: "Показывать управление инвертором",
   },
   en: {
     locale: "en-US",
@@ -220,6 +296,44 @@ const STRINGS = {
     unknownError: "Unknown error",
     cardName: "DeyeCloud Energy Flow",
     cardDescription: "Realtime solar, battery, grid and load power flow.",
+    controlsTitle: "Inverter control",
+    controlsHint: "Experimental · every change needs confirmation",
+    settingsRead: "Settings read",
+    notRead: "Not read yet",
+    modes: "Operating mode",
+    functions: "Functions",
+    limits: "Limits",
+    workMode: "Work mode",
+    energyPattern: "Energy priority",
+    modeSellingFirst: "Selling first",
+    modeZeroLoad: "Zero export to load",
+    modeZeroCt: "Zero export to CT",
+    patternBattery: "Battery first",
+    patternLoad: "Load first",
+    gridCharge: "Grid charge",
+    solarSell: "Solar sell",
+    timeOfUse: "Time of use",
+    on: "On",
+    off: "Off",
+    maxChargeCurrent: "Max charge current",
+    maxDischargeCurrent: "Max discharge current",
+    gridChargeCurrent: "Grid charge current",
+    maxSellPower: "Max sell power",
+    maxSolarPower: "Max solar power",
+    touSchedule: "24-hour charge schedule",
+    touNow: "Now",
+    touTarget: "Target SOC",
+    touOff: "Time of use is off",
+    confirmTitle: "Apply to the inverter?",
+    apply: "Apply",
+    cancel: "Cancel",
+    edit: "Edit",
+    sending: "Sending to the inverter…",
+    confirmed: "Confirmed by the inverter",
+    failed: "The inverter did not confirm",
+    outOfRange: "Value must be between {min} and {max}",
+    inverterLabel: "Inverter",
+    editorControls: "Show inverter controls",
   },
 };
 
@@ -378,6 +492,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
     this._hass = null;
     this._runtimeStationId = null;
     this._lastRenderSignature = "";
+    this._ctrl = { confirm: null, pending: {}, toast: null, editing: null, draft: "", device: null };
   }
 
   static getStubConfig() {
@@ -424,6 +539,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
     let size = 5;
     if (this._config.show_efficiency !== false) size += 1;
     if (this._config.show_daily !== false) size += 2;
+    if (this._config.show_controls !== false) size += 3;
     return size;
   }
 
@@ -673,6 +789,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       values.solar + values.gridImport + values.batteryDischarge -
       values.load - values.gridExport - values.batteryCharge;
 
+    const controlDevices = this._controlDevices(stationId);
     const signature = JSON.stringify({
       stationIds,
       stationId,
@@ -681,6 +798,17 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       statusText,
       language,
       latest: latestDate?.toISOString(),
+      controls: Object.values(controlDevices).flatMap((device) =>
+        Object.values(device).map(({ entityId, stateObj }) => [
+          entityId,
+          stateObj.state,
+          stateObj.attributes?.settings_read_at,
+          stateObj.attributes?.slots,
+        ])
+      ),
+      ctrl: this._ctrl,
+      // Keeps the TOU "now" marker and relative times moving.
+      minute: Math.floor(Date.now() / 60000),
     });
     if (signature === this._lastRenderSignature) return;
     this._lastRenderSignature = signature;
@@ -854,6 +982,8 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
                 </button>`).join("")}
             </div>
           </section>`}
+
+        ${this._controlsSection(stationId, t, locale)}
       </ha-card>`;
 
     const select = this.shadowRoot.getElementById("station-select");
@@ -870,6 +1000,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       if (!entityId) return;
       element.addEventListener("click", () => this._moreInfo(entityId));
     });
+    this._wireControls();
 
     } catch (error) {
       console.error("DeyeCloud Energy Flow Card render error", error);
@@ -916,6 +1047,419 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       balance: '<svg viewBox="0 0 24 24"><path d="m13 2-8 12h6l-1 8 9-13h-6z"/></svg>',
     };
     return icons[kind] || icons.sun;
+  }
+
+  // ---------------------------------------------------------------------
+  // Inverter controls (integration option "Enable remote control").
+  // Every write goes through an explicit confirmation step because it
+  // changes real inverter settings; the service call resolves only after
+  // the inverter confirmed the command, so pending/success/failure states
+  // reflect what actually happened.
+  // ---------------------------------------------------------------------
+
+  _controlDevices(stationId) {
+    const devices = {};
+    for (const [entityId, stateObj] of this._statesForStation(stationId)) {
+      const attrs = stateObj.attributes || {};
+      if (!attrs.control_key || !attrs.device_sn) continue;
+      const sn = String(attrs.device_sn);
+      devices[sn] = devices[sn] || {};
+      devices[sn][attrs.control_key] = { entityId, stateObj };
+    }
+    return devices;
+  }
+
+  _selectedControlDevice(devices) {
+    const serials = Object.keys(devices).sort();
+    if (!serials.length) return null;
+    return serials.includes(this._ctrl.device) ? this._ctrl.device : serials[0];
+  }
+
+  _setCtrl(patch) {
+    this._ctrl = { ...this._ctrl, ...patch };
+    this._lastRenderSignature = "";
+    this._render();
+  }
+
+  _toast(kind, text) {
+    clearTimeout(this._toastTimer);
+    this._setCtrl({ toast: { kind, text } });
+    this._toastTimer = setTimeout(() => this._setCtrl({ toast: null }), kind === "error" ? 9000 : 4500);
+  }
+
+  async _runConfirmed() {
+    const request = this._ctrl.confirm;
+    if (!request || !this._hass) return;
+    const t = this._strings();
+    this._setCtrl({ confirm: null, pending: { ...this._ctrl.pending, [request.entityId]: true } });
+    try {
+      await this._hass.callService(request.domain, request.service, {
+        entity_id: request.entityId,
+        ...request.data,
+      });
+      this._toast("success", `${t.confirmed} · ${request.label}: ${request.to}`);
+    } catch (error) {
+      const detail = error?.message || error?.error?.message || String(error || "");
+      this._toast("error", `${t.failed} · ${request.label}${detail ? ` — ${detail}` : ""}`);
+    } finally {
+      const pending = { ...this._ctrl.pending };
+      delete pending[request.entityId];
+      this._setCtrl({ pending });
+    }
+  }
+
+  _controlLabels(t) {
+    return {
+      workModes: {
+        SELLING_FIRST: t.modeSellingFirst,
+        ZERO_EXPORT_TO_LOAD: t.modeZeroLoad,
+        ZERO_EXPORT_TO_CT: t.modeZeroCt,
+      },
+      patterns: { BATTERY_FIRST: t.patternBattery, LOAD_FIRST: t.patternLoad },
+    };
+  }
+
+  _ctrlIcon(kind) {
+    const icons = {
+      mode: '<svg viewBox="0 0 24 24"><path d="M12 3 7 21M12 3l5 18M9 10h6M8 15h8"/><path d="M19 8h3m-1.5-1.5L22 8l-1.5 1.5"/></svg>',
+      pattern: '<svg viewBox="0 0 24 24"><rect x="4" y="6" width="12" height="14" rx="2.5"/><path d="M8 3h4M19 9a4 4 0 0 1 0 6M21.5 7a7 7 0 0 1 0 10"/></svg>',
+      grid_charge: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="14" height="12" rx="2.5"/><path d="M20 10v4M11 8.5 8 12.5h3l-1 3.5 3.5-4.5h-3z"/></svg>',
+      solar_sell: '<svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><path d="M8 2.5v1.5M2.5 9H4M3.8 4.8l1 1M12.2 4.8l-1 1M13 16h8M18 13l3 3-3 3"/></svg>',
+      time_of_use: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>',
+      current_up: '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="12" height="16" rx="2.5"/><path d="M10 3h4M12 17v-7M9 12.5l3-3 3 3"/></svg>',
+      current_down: '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="12" height="16" rx="2.5"/><path d="M10 3h4M12 9v7M9 13.5l3 3 3-3"/></svg>',
+      current_grid: '<svg viewBox="0 0 24 24"><path d="M12 3 8 21M12 3l4 18M9.6 10h4.8M8.8 15h6.4"/><path d="M19 13v6M16.5 16.5 19 19l2.5-2.5"/></svg>',
+      power_sell: '<svg viewBox="0 0 24 24"><path d="M4 12h12M11 7l5 5-5 5M20 4v16"/></svg>',
+      power_solar: '<svg viewBox="0 0 24 24"><path d="M3 19 6 9h12l3 10z"/><path d="M4.5 14h15M9 9l-1 10M15 9l1 10M12 3v3M8 4l1 2M16 4l-1 2"/></svg>',
+      edit: '<svg viewBox="0 0 24 24"><path d="m4 20 4-1 11-11-3-3L5 16z"/><path d="m14 6 3 3"/></svg>',
+      shield: '<svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="M12 8v5M12 16h.01"/></svg>',
+    };
+    return icons[kind] || icons.mode;
+  }
+
+  _touSegments(slots) {
+    const toMinutes = (value) => {
+      const [h, m] = String(value || "0:0").split(":").map(Number);
+      return (h || 0) * 60 + (m || 0);
+    };
+    const sorted = [...(slots || [])]
+      .map((slot) => ({ ...slot, start: toMinutes(slot.time) }))
+      .sort((a, b) => a.start - b.start);
+    const segments = [];
+    sorted.forEach((slot, index) => {
+      // Each slot runs until the next one starts; the last wraps past midnight.
+      const end = index + 1 < sorted.length ? sorted[index + 1].start : sorted[0].start + 1440;
+      if (end > 1440) {
+        segments.push({ ...slot, from: slot.start, to: 1440 });
+        if (end - 1440 > 0) segments.push({ ...slot, from: 0, to: end - 1440 });
+      } else if (end > slot.start) {
+        segments.push({ ...slot, from: slot.start, to: end });
+      }
+    });
+    return segments.sort((a, b) => a.from - b.from);
+  }
+
+  _controlsSection(stationId, t, locale) {
+    if (this._config.show_controls === false) return "";
+    const devices = this._controlDevices(stationId);
+    const sn = this._selectedControlDevice(devices);
+    if (!sn) return "";
+    const controls = devices[sn];
+    const labels = this._controlLabels(t);
+    const pending = this._ctrl.pending || {};
+    const busy = Object.values(controls).some((c) => pending[c.entityId]);
+    const known = (value) =>
+      value !== undefined && value !== null && !["unknown", "unavailable", ""].includes(value);
+
+    const readAt = Object.values(controls)
+      .map((c) => c.stateObj.attributes?.settings_read_at)
+      .filter(Boolean)
+      .sort()
+      .pop();
+
+    const segmented = (key, title, icon, optionLabels) => {
+      const control = controls[key];
+      if (!control) return "";
+      const current = control.stateObj.state;
+      const options = control.stateObj.attributes?.options || Object.keys(optionLabels);
+      const isPending = pending[control.entityId];
+      return `
+        <div class="ctrl-mode ${isPending ? "pending" : ""}">
+          <div class="ctrl-mode-head">
+            <span class="ctrl-icon mode-icon">${this._ctrlIcon(icon)}</span>
+            <span>${escapeHtml(title)}</span>
+            ${isPending ? '<i class="ctrl-spinner" aria-hidden="true"></i>' : ""}
+          </div>
+          <div class="segmented" role="radiogroup" aria-label="${escapeHtml(title)}">
+            ${options.map((option) => `
+              <button type="button" role="radio" aria-checked="${option === current}"
+                class="segment ${option === current ? "selected" : ""}"
+                data-ctrl-action="select" data-entity-id="${escapeHtml(control.entityId)}"
+                data-value="${escapeHtml(option)}" data-label="${escapeHtml(title)}"
+                data-from="${escapeHtml(optionLabels[current] || "—")}" data-to="${escapeHtml(optionLabels[option] || option)}"
+                ${busy ? "disabled" : ""}>
+                ${escapeHtml(optionLabels[option] || option)}
+              </button>`).join("")}
+          </div>
+        </div>`;
+    };
+
+    const toggle = (key, title, icon, tone) => {
+      const control = controls[key];
+      if (!control) return "";
+      const value = control.stateObj.state;
+      const isOn = value === "on";
+      const isPending = pending[control.entityId];
+      const shown = known(value) ? (isOn ? t.on : t.off) : "—";
+      return `
+        <button type="button" class="ctrl-toggle ${tone} ${isOn ? "on" : ""} ${known(value) ? "" : "unknown"} ${isPending ? "pending" : ""}"
+          role="switch" aria-checked="${isOn}"
+          data-ctrl-action="toggle" data-entity-id="${escapeHtml(control.entityId)}"
+          data-value="${isOn ? "off" : "on"}" data-label="${escapeHtml(title)}"
+          data-from="${escapeHtml(shown)}" data-to="${escapeHtml(isOn ? t.off : t.on)}"
+          ${busy ? "disabled" : ""}>
+          <span class="ctrl-icon">${this._ctrlIcon(icon)}</span>
+          <span class="ctrl-toggle-copy">
+            <small>${escapeHtml(title)}</small>
+            <strong>${escapeHtml(shown)}</strong>
+          </span>
+          ${isPending ? '<i class="ctrl-spinner" aria-hidden="true"></i>' : '<span class="switch-track" aria-hidden="true"><i></i></span>'}
+        </button>`;
+    };
+
+    const limit = (key, title, icon, tone) => {
+      const control = controls[key];
+      if (!control) return "";
+      const attrs = control.stateObj.attributes || {};
+      const unit = attrs.unit_of_measurement || "";
+      const raw = control.stateObj.state;
+      const numeric = Number(raw);
+      const hasValue = known(raw) && Number.isFinite(numeric);
+      const display = hasValue ? numeric.toLocaleString(locale, { maximumFractionDigits: 0 }) : "—";
+      const isPending = pending[control.entityId];
+      if (this._ctrl.editing === control.entityId) {
+        return `
+          <div class="ctrl-limit ${tone} editing">
+            <span class="ctrl-icon">${this._ctrlIcon(icon)}</span>
+            <label class="ctrl-limit-copy">
+              <small>${escapeHtml(title)}</small>
+              <span class="ctrl-input-wrap">
+                <input id="ctrl-edit-input" type="number" inputmode="numeric"
+                  min="${escapeHtml(attrs.min ?? 0)}" max="${escapeHtml(attrs.max ?? "")}" step="${escapeHtml(attrs.step ?? 1)}"
+                  value="${escapeHtml(this._ctrl.draft)}" />
+                <em>${escapeHtml(unit)}</em>
+              </span>
+            </label>
+            <span class="ctrl-edit-actions">
+              <button type="button" class="icon-btn ok" data-ctrl-action="apply-edit"
+                data-entity-id="${escapeHtml(control.entityId)}" data-label="${escapeHtml(title)}"
+                data-from="${escapeHtml(hasValue ? `${display} ${unit}` : "—")}" data-unit="${escapeHtml(unit)}"
+                data-min="${escapeHtml(attrs.min ?? 0)}" data-max="${escapeHtml(attrs.max ?? "")}"
+                aria-label="${escapeHtml(t.apply)}">✓</button>
+              <button type="button" class="icon-btn" data-ctrl-action="cancel-edit" aria-label="${escapeHtml(t.cancel)}">✕</button>
+            </span>
+          </div>`;
+      }
+      return `
+        <button type="button" class="ctrl-limit ${tone} ${isPending ? "pending" : ""}"
+          data-ctrl-action="edit" data-entity-id="${escapeHtml(control.entityId)}"
+          data-value="${escapeHtml(hasValue ? String(Math.round(numeric)) : "")}"
+          aria-label="${escapeHtml(`${t.edit} ${title}`)}" ${busy ? "disabled" : ""}>
+          <span class="ctrl-icon">${this._ctrlIcon(icon)}</span>
+          <span class="ctrl-limit-copy">
+            <small>${escapeHtml(title)}</small>
+            <strong>${escapeHtml(display)}${hasValue ? `<em>${escapeHtml(unit)}</em>` : ""}</strong>
+          </span>
+          ${isPending ? '<i class="ctrl-spinner" aria-hidden="true"></i>' : `<span class="ctrl-edit-icon" aria-hidden="true">${this._ctrlIcon("edit")}</span>`}
+        </button>`;
+    };
+
+    // 24-hour time-of-use timeline: bar height = target SOC of each slot.
+    const touState = controls.time_of_use?.stateObj;
+    const slots = touState?.attributes?.slots || [];
+    let touHtml = "";
+    if (slots.length) {
+      const segments = this._touSegments(slots);
+      const now = new Date();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const active = segments.find((seg) => nowMinutes >= seg.from && nowMinutes < seg.to);
+      const touOn = touState.state === "on";
+      const fmt = (minutes) =>
+        `${String(Math.floor(minutes / 60) % 24).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+      const endLabel = (minutes) => (minutes === 1440 ? "24:00" : fmt(minutes));
+      touHtml = `
+        <div class="tou-card ${touOn ? "" : "off"}">
+          <div class="tou-head">
+            <span class="ctrl-icon">${this._ctrlIcon("time_of_use")}</span>
+            <div>
+              <small>${escapeHtml(t.touSchedule)}</small>
+              <strong>${touOn && active
+                ? `${escapeHtml(t.touNow)} ${escapeHtml(fmt(active.from))}–${escapeHtml(endLabel(active.to))} · ${escapeHtml(t.touTarget)} ${escapeHtml(active.soc)}% · ${escapeHtml(formatPower(active.power, locale))}`
+                : escapeHtml(t.touOff)}</strong>
+            </div>
+          </div>
+          <div class="tou-track" role="img" aria-label="${escapeHtml(t.touSchedule)}">
+            ${segments.map((seg) => `
+              <div class="tou-seg ${seg === active ? "active" : ""}" style="flex:${seg.to - seg.from}"
+                title="${escapeHtml(`${fmt(seg.from)}–${endLabel(seg.to)} · ${seg.soc}% · ${formatPower(seg.power, locale)}`)}">
+                <i style="height:${clamp(Number(seg.soc) || 0, 4, 100)}%"></i>
+                ${seg.to - seg.from >= 90 ? `<span>${escapeHtml(seg.soc)}%</span>` : ""}
+              </div>`).join("")}
+            <b class="tou-now" style="left:${(nowMinutes / 1440) * 100}%"></b>
+          </div>
+          <div class="tou-axis" aria-hidden="true"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+        </div>`;
+    }
+
+    const serials = Object.keys(devices).sort();
+    const inverterPicker = serials.length > 1
+      ? `<label class="ctrl-inverter"><span>${escapeHtml(t.inverterLabel)}</span>
+           <select id="ctrl-inverter">${serials.map((id) => `<option value="${escapeHtml(id)}" ${id === sn ? "selected" : ""}>${escapeHtml(id)}</option>`).join("")}</select>
+         </label>`
+      : "";
+
+    const confirm = this._ctrl.confirm;
+    const confirmHtml = confirm
+      ? `
+        <div class="ctrl-confirm" role="alertdialog" aria-live="assertive">
+          <span class="ctrl-icon warn">${this._ctrlIcon("shield")}</span>
+          <div class="ctrl-confirm-copy">
+            <strong>${escapeHtml(t.confirmTitle)}</strong>
+            <span>${escapeHtml(confirm.label)}: <s>${escapeHtml(confirm.from)}</s> → <b>${escapeHtml(confirm.to)}</b></span>
+          </div>
+          <div class="ctrl-confirm-actions">
+            <button type="button" class="btn ghost" data-ctrl-action="cancel-confirm">${escapeHtml(t.cancel)}</button>
+            <button type="button" class="btn primary" data-ctrl-action="confirm">${escapeHtml(t.apply)}</button>
+          </div>
+        </div>`
+      : "";
+    const toast = this._ctrl.toast;
+    const statusHtml = busy
+      ? `<div class="ctrl-toast info" role="status"><i class="ctrl-spinner"></i>${escapeHtml(t.sending)}</div>`
+      : toast
+        ? `<div class="ctrl-toast ${toast.kind}" role="status">${escapeHtml(toast.text)}</div>`
+        : "";
+
+    return `
+      <section class="control-section">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker ctrl-kicker">CTRL</span>
+            <h3>${escapeHtml(t.controlsTitle)}</h3>
+          </div>
+          <span class="ctrl-meta">
+            ${escapeHtml(t.settingsRead)} · <b>${escapeHtml(readAt ? relativeTime(new Date(readAt), locale) : t.notRead)}</b>
+          </span>
+        </div>
+        <p class="ctrl-hint">${this._ctrlIcon("shield")}<span>${escapeHtml(t.controlsHint)}</span></p>
+        ${inverterPicker}
+        ${controls.work_mode || controls.energy_pattern ? `
+          <div class="ctrl-group">
+            <span class="ctrl-group-label">${escapeHtml(t.modes)}</span>
+            <div class="ctrl-modes">
+              ${segmented("work_mode", t.workMode, "mode", labels.workModes)}
+              ${segmented("energy_pattern", t.energyPattern, "pattern", labels.patterns)}
+            </div>
+          </div>` : ""}
+        <div class="ctrl-group">
+          <span class="ctrl-group-label">${escapeHtml(t.functions)}</span>
+          <div class="ctrl-toggles">
+            ${toggle("grid_charge", t.gridCharge, "grid_charge", "grid")}
+            ${toggle("solar_sell", t.solarSell, "solar_sell", "solar")}
+            ${toggle("time_of_use", t.timeOfUse, "time_of_use", "battery")}
+          </div>
+          ${touHtml}
+        </div>
+        <div class="ctrl-group">
+          <span class="ctrl-group-label">${escapeHtml(t.limits)}</span>
+          <div class="ctrl-limits">
+            ${limit("max_charge_current", t.maxChargeCurrent, "current_up", "battery")}
+            ${limit("max_discharge_current", t.maxDischargeCurrent, "current_down", "battery")}
+            ${limit("grid_charge_current", t.gridChargeCurrent, "current_grid", "grid")}
+            ${limit("max_sell_power", t.maxSellPower, "power_sell", "grid")}
+            ${limit("max_solar_power", t.maxSolarPower, "power_solar", "solar")}
+          </div>
+        </div>
+        ${confirmHtml}
+        ${statusHtml}
+      </section>`;
+  }
+
+  _wireControls() {
+    const root = this.shadowRoot;
+    const t = this._strings();
+    root.getElementById("ctrl-inverter")?.addEventListener("change", (event) =>
+      this._setCtrl({ device: event.target.value, editing: null, confirm: null })
+    );
+    root.querySelectorAll("[data-ctrl-action]").forEach((element) => {
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const data = element.dataset;
+        switch (data.ctrlAction) {
+          case "select":
+            if (element.classList.contains("selected")) return;
+            this._setCtrl({
+              editing: null,
+              confirm: {
+                entityId: data.entityId, domain: "select", service: "select_option",
+                data: { option: data.value }, label: data.label, from: data.from, to: data.to,
+              },
+            });
+            break;
+          case "toggle":
+            this._setCtrl({
+              editing: null,
+              confirm: {
+                entityId: data.entityId, domain: "switch", service: data.value === "on" ? "turn_on" : "turn_off",
+                data: {}, label: data.label, from: data.from, to: data.to,
+              },
+            });
+            break;
+          case "edit":
+            this._setCtrl({ editing: data.entityId, draft: data.value || "", confirm: null });
+            break;
+          case "cancel-edit":
+            this._setCtrl({ editing: null, draft: "" });
+            break;
+          case "apply-edit": {
+            const value = Number(this._ctrl.draft);
+            const min = Number(data.min);
+            const max = data.max === "" ? Number.POSITIVE_INFINITY : Number(data.max);
+            if (this._ctrl.draft === "" || !Number.isFinite(value) || value < min || value > max) {
+              this._toast("error", t.outOfRange.replace("{min}", data.min).replace("{max}", data.max || "∞"));
+              return;
+            }
+            this._setCtrl({
+              editing: null,
+              confirm: {
+                entityId: data.entityId, domain: "number", service: "set_value",
+                data: { value }, label: data.label, from: data.from,
+                to: `${value.toLocaleString(t.locale)} ${data.unit}`.trim(),
+              },
+            });
+            break;
+          }
+          case "cancel-confirm":
+            this._setCtrl({ confirm: null });
+            break;
+          case "confirm":
+            this._runConfirmed();
+            break;
+          default:
+        }
+      });
+    });
+
+    const input = root.getElementById("ctrl-edit-input");
+    if (input) {
+      input.addEventListener("input", (event) => { this._ctrl.draft = event.target.value; });
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") root.querySelector('[data-ctrl-action="apply-edit"]')?.click();
+        if (event.key === "Escape") this._setCtrl({ editing: null, draft: "" });
+      });
+      // Re-renders (new sensor values) must not steal the field being edited.
+      input.focus();
+    }
   }
 
   _styles() {
@@ -1529,6 +2073,422 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           .flow-line, .status-badge.online i { animation: none !important; }
           .flow-node, .daily-metric { transition: none; }
         }
+
+        /* ---------------- Inverter controls ---------------- */
+        .control-section {
+          position: relative;
+          margin: 14px 16px 18px;
+          padding: 16px;
+          border: 1px solid var(--deye-border);
+          border-radius: 20px;
+          background:
+            linear-gradient(160deg, color-mix(in srgb, var(--deye-battery-soft) 42%, transparent), transparent 38%),
+            color-mix(in srgb, var(--deye-card) 97%, var(--deye-surface) 3%);
+        }
+        .daily-section + .control-section { margin-top: -4px; }
+        .ctrl-kicker { color: var(--deye-battery); background: var(--deye-battery-soft); }
+        .ctrl-meta { color: var(--deye-muted); font-size: 11px; text-align: right; }
+        .ctrl-meta b { color: var(--deye-text); font-weight: 650; }
+        .ctrl-hint {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          margin: -4px 0 14px;
+          color: var(--deye-muted);
+          font-size: 11px;
+        }
+        .ctrl-hint svg {
+          width: 14px;
+          height: 14px;
+          flex: 0 0 14px;
+          fill: none;
+          stroke: currentColor;
+          stroke-width: 1.9;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+        .ctrl-inverter { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--deye-muted); font-size: 12px; }
+        .ctrl-inverter select {
+          border: 1px solid var(--deye-border);
+          border-radius: 9px;
+          padding: 4px 26px 4px 8px;
+          color: var(--deye-text);
+          background: var(--deye-card);
+        }
+        .ctrl-group + .ctrl-group { margin-top: 16px; }
+        .ctrl-group-label {
+          display: block;
+          margin: 0 0 8px 2px;
+          color: var(--deye-muted);
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+        }
+
+        .ctrl-icon {
+          flex: 0 0 38px;
+          width: 38px;
+          height: 38px;
+          display: grid;
+          place-items: center;
+          border-radius: 12px;
+          color: currentColor;
+          background: color-mix(in srgb, currentColor 13%, transparent);
+        }
+        .ctrl-icon svg {
+          width: 20px;
+          height: 20px;
+          fill: none;
+          stroke: currentColor;
+          stroke-width: 1.8;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+        .ctrl-icon.warn { color: #d78c00; }
+
+        /* Segmented mode pickers */
+        .ctrl-modes { display: grid; gap: 10px; }
+        .ctrl-mode {
+          padding: 12px;
+          border: 1px solid var(--deye-border);
+          border-radius: 17px;
+          background: color-mix(in srgb, var(--deye-card) 96%, transparent);
+          color: var(--deye-grid);
+        }
+        .ctrl-mode-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--deye-text); font-size: 13px; font-weight: 700; }
+        .ctrl-mode-head .ctrl-icon { color: var(--deye-grid); width: 32px; height: 32px; flex-basis: 32px; border-radius: 10px; }
+        .ctrl-mode-head .ctrl-icon svg { width: 17px; height: 17px; }
+        .ctrl-mode-head .ctrl-spinner { margin-left: auto; }
+        .segmented {
+          display: grid;
+          grid-auto-columns: minmax(0, 1fr);
+          grid-auto-flow: column;
+          gap: 4px;
+          padding: 4px;
+          border-radius: 13px;
+          background: color-mix(in srgb, var(--deye-muted) 11%, transparent);
+        }
+        .segment {
+          min-width: 0;
+          min-height: 38px;
+          padding: 7px 8px;
+          border: 0;
+          border-radius: 10px;
+          color: var(--deye-muted);
+          background: transparent;
+          font-size: 12px;
+          font-weight: 700;
+          line-height: 1.2;
+          cursor: pointer;
+          transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+        }
+        .segment:hover:not(:disabled):not(.selected) { color: var(--deye-text); background: color-mix(in srgb, var(--deye-card) 60%, transparent); }
+        .segment.selected {
+          color: var(--deye-grid);
+          background: var(--deye-card);
+          box-shadow: 0 2px 8px rgba(18, 28, 45, .12), inset 0 0 0 1px color-mix(in srgb, var(--deye-grid) 30%, transparent);
+          cursor: default;
+        }
+        .segment:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 1px; }
+        .segment:disabled { cursor: not-allowed; opacity: .55; }
+        .ctrl-mode.pending .segmented { opacity: .6; }
+
+        /* Toggle tiles */
+        .ctrl-toggles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .ctrl-toggle, .ctrl-limit {
+          position: relative;
+          min-width: 0;
+          min-height: 68px;
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 10px;
+          padding: 12px;
+          text-align: left;
+          color: var(--deye-muted);
+          border: 1px solid var(--deye-border);
+          border-radius: 17px;
+          background: color-mix(in srgb, var(--deye-card) 96%, transparent);
+          box-shadow: 0 5px 16px rgba(18, 28, 45, .035);
+          cursor: pointer;
+          transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+        .ctrl-toggle.grid, .ctrl-limit.grid { --tone: var(--deye-grid); }
+        .ctrl-toggle.solar, .ctrl-limit.solar { --tone: var(--deye-solar); }
+        .ctrl-toggle.battery, .ctrl-limit.battery { --tone: var(--deye-battery); }
+        .ctrl-toggle .ctrl-icon, .ctrl-limit .ctrl-icon { color: var(--tone); }
+        .ctrl-toggle:hover:not(:disabled), .ctrl-limit:hover:not(:disabled):not(.editing) {
+          transform: translateY(-2px);
+          border-color: color-mix(in srgb, var(--tone) 30%, var(--deye-border));
+          box-shadow: 0 9px 22px rgba(18, 28, 45, .075);
+        }
+        .ctrl-toggle:focus-visible, .ctrl-limit:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+        .ctrl-toggle:disabled, .ctrl-limit:disabled { cursor: not-allowed; opacity: .6; transform: none; }
+        .ctrl-toggle.on {
+          border-color: color-mix(in srgb, var(--tone) 38%, var(--deye-border));
+          background: color-mix(in srgb, var(--deye-card) 90%, var(--tone) 10%);
+        }
+        .ctrl-toggle-copy, .ctrl-limit-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .ctrl-toggle small, .ctrl-limit small {
+          color: var(--deye-muted);
+          font-size: 11px;
+          line-height: 1.25;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .ctrl-toggle strong, .ctrl-limit strong {
+          color: var(--deye-text);
+          font-size: 15px;
+          line-height: 1.15;
+          white-space: nowrap;
+        }
+        .ctrl-toggle.on strong { color: color-mix(in srgb, var(--tone) 80%, var(--deye-text)); }
+        .ctrl-limit strong em, .ctrl-input-wrap em {
+          margin-left: 3px;
+          color: var(--deye-muted);
+          font-size: 11px;
+          font-style: normal;
+          font-weight: 650;
+        }
+        .switch-track {
+          position: relative;
+          width: 38px;
+          height: 22px;
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--deye-muted) 28%, transparent);
+          transition: background .2s ease;
+        }
+        .switch-track i {
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #fff;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+          transition: transform .2s ease;
+        }
+        .ctrl-toggle.on .switch-track { background: var(--tone); }
+        .ctrl-toggle.on .switch-track i { transform: translateX(16px); }
+        .ctrl-toggle.unknown .switch-track { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--deye-muted) 22%, transparent) 0 4px, transparent 4px 8px); }
+
+        /* Limit tiles */
+        .ctrl-limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .ctrl-edit-icon { width: 16px; height: 16px; color: var(--deye-muted); opacity: .6; transition: opacity .18s ease; }
+        .ctrl-edit-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+        .ctrl-limit:hover .ctrl-edit-icon { opacity: 1; }
+        .ctrl-limit.editing {
+          cursor: default;
+          border-color: color-mix(in srgb, var(--tone) 55%, var(--deye-border));
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 16%, transparent);
+        }
+        .ctrl-input-wrap { display: flex; align-items: baseline; }
+        .ctrl-input-wrap input::-webkit-outer-spin-button,
+        .ctrl-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .ctrl-input-wrap input {
+          -moz-appearance: textfield;
+          appearance: textfield;
+          width: 100%;
+          min-width: 0;
+          padding: 2px 0;
+          border: 0;
+          border-bottom: 2px solid color-mix(in srgb, var(--tone) 60%, transparent);
+          outline: none;
+          color: var(--deye-text);
+          background: transparent;
+          font: inherit;
+          font-size: 15px;
+          font-weight: 700;
+        }
+        .ctrl-edit-actions { display: flex; gap: 6px; }
+        .icon-btn {
+          width: 32px;
+          height: 32px;
+          display: grid;
+          place-items: center;
+          border: 1px solid var(--deye-border);
+          border-radius: 10px;
+          color: var(--deye-muted);
+          background: var(--deye-card);
+          font-size: 14px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+        .icon-btn.ok { color: #fff; border-color: transparent; background: var(--tone); }
+        .icon-btn:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+
+        /* Time-of-use timeline */
+        .tou-card {
+          margin-top: 10px;
+          padding: 12px 14px 10px;
+          border: 1px solid var(--deye-border);
+          border-radius: 17px;
+          background: color-mix(in srgb, var(--deye-card) 96%, transparent);
+          color: var(--deye-battery);
+        }
+        .tou-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .tou-head .ctrl-icon { width: 32px; height: 32px; flex-basis: 32px; border-radius: 10px; }
+        .tou-head .ctrl-icon svg { width: 17px; height: 17px; }
+        .tou-head small { display: block; color: var(--deye-muted); font-size: 11px; }
+        .tou-head strong { display: block; margin-top: 2px; color: var(--deye-text); font-size: 12px; font-weight: 700; }
+        .tou-track {
+          position: relative;
+          display: flex;
+          gap: 3px;
+          height: 64px;
+          padding: 4px;
+          border-radius: 13px;
+          background: color-mix(in srgb, var(--deye-muted) 9%, transparent);
+        }
+        .tou-seg {
+          position: relative;
+          min-width: 0;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          overflow: hidden;
+          border-radius: 9px;
+          background: color-mix(in srgb, var(--deye-battery) 8%, transparent);
+        }
+        .tou-seg i {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 9px 9px 0 0;
+          background: linear-gradient(180deg, color-mix(in srgb, var(--deye-battery) 55%, white), color-mix(in srgb, var(--deye-battery) 78%, transparent));
+          opacity: .55;
+          transition: height .3s ease;
+        }
+        .tou-seg.active i { opacity: 1; }
+        .tou-seg.active { box-shadow: inset 0 0 0 2px var(--deye-battery); }
+        .tou-seg span {
+          position: relative;
+          z-index: 1;
+          margin-bottom: 5px;
+          padding: 1px 5px;
+          border-radius: 999px;
+          color: var(--deye-text);
+          background: color-mix(in srgb, var(--deye-card) 82%, transparent);
+          font-size: 10px;
+          font-weight: 800;
+        }
+        .tou-now {
+          position: absolute;
+          top: -3px;
+          bottom: -3px;
+          width: 2px;
+          margin-left: -1px;
+          border-radius: 2px;
+          background: var(--deye-load);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--deye-load) 20%, transparent);
+          z-index: 2;
+        }
+        .tou-now::before {
+          content: "";
+          position: absolute;
+          top: -4px;
+          left: -3px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--deye-load);
+        }
+        .tou-axis { display: flex; justify-content: space-between; margin-top: 6px; padding: 0 2px; color: var(--deye-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+        .tou-card.off .tou-seg i { opacity: .2; }
+        .tou-card.off .tou-seg.active { box-shadow: none; }
+
+        /* Confirmation + status */
+        .ctrl-confirm {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 12px;
+          margin-top: 16px;
+          padding: 12px 14px;
+          border: 1px solid color-mix(in srgb, #d78c00 36%, var(--deye-border));
+          border-radius: 17px;
+          background: color-mix(in srgb, var(--deye-card) 88%, var(--deye-solar-soft) 12%);
+          box-shadow: 0 10px 26px rgba(18, 28, 45, .1);
+          animation: ctrlRise .22s ease-out;
+        }
+        .ctrl-confirm-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .ctrl-confirm-copy strong { font-size: 13px; }
+        .ctrl-confirm-copy span { color: var(--deye-muted); font-size: 12px; overflow-wrap: anywhere; }
+        .ctrl-confirm-copy s { opacity: .75; }
+        .ctrl-confirm-copy b { color: var(--deye-text); }
+        .ctrl-confirm-actions { display: flex; gap: 8px; }
+        .btn {
+          min-height: 36px;
+          padding: 7px 15px;
+          border-radius: 11px;
+          font-size: 13px;
+          font-weight: 750;
+          cursor: pointer;
+        }
+        .btn.ghost { color: var(--deye-text); background: transparent; border: 1px solid var(--deye-border); }
+        .btn.primary {
+          color: #fff;
+          border: 0;
+          background: linear-gradient(135deg, color-mix(in srgb, var(--deye-battery) 82%, white), var(--deye-battery));
+          box-shadow: 0 6px 16px color-mix(in srgb, var(--deye-battery) 35%, transparent);
+        }
+        .btn:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+        .ctrl-toast {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          margin-top: 12px;
+          padding: 10px 13px;
+          border-radius: 13px;
+          font-size: 12px;
+          font-weight: 650;
+          overflow-wrap: anywhere;
+          animation: ctrlRise .22s ease-out;
+        }
+        .ctrl-toast.info { color: var(--deye-grid); background: var(--deye-grid-soft); }
+        .ctrl-toast.success { color: var(--deye-battery); background: var(--deye-battery-soft); }
+        .ctrl-toast.error { color: var(--deye-load); background: var(--deye-load-soft); }
+        .ctrl-spinner {
+          width: 16px;
+          height: 16px;
+          flex: 0 0 16px;
+          border-radius: 50%;
+          border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+          border-top-color: currentColor;
+          animation: ctrlSpin .8s linear infinite;
+        }
+        .ctrl-toggle .ctrl-spinner, .ctrl-limit .ctrl-spinner { color: var(--tone); }
+        @keyframes ctrlSpin { to { transform: rotate(360deg); } }
+        @keyframes ctrlRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        @container (min-width: 720px) {
+          .ctrl-modes { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+          .ctrl-limits { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @container (max-width: 520px) {
+          .ctrl-toggles { grid-template-columns: 1fr; }
+          .ctrl-toggle { min-height: 58px; }
+          .segment { font-size: 11px; padding: 6px 4px; }
+        }
+        @media (max-width: 560px) {
+          .control-section { margin-inline: 8px; padding: 12px; }
+          .ctrl-limits { gap: 8px; }
+          .ctrl-limit { grid-template-columns: minmax(0, 1fr) auto; padding: 11px; }
+          .ctrl-limit .ctrl-icon { display: none; }
+          .ctrl-limit.editing { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; }
+          .ctrl-confirm { grid-template-columns: auto minmax(0, 1fr); }
+          .ctrl-confirm-actions { grid-column: 1 / -1; justify-content: flex-end; }
+          .ctrl-meta { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ctrl-toggle, .ctrl-limit, .segment, .switch-track i, .tou-seg i { transition: none; }
+          .ctrl-confirm, .ctrl-toast { animation: none; }
+          .ctrl-spinner { animation-duration: 2.4s; }
+        }
       </style>`;
   }
 }
@@ -1621,6 +2581,7 @@ class DeyeCloudEnergyFlowCardEditor extends HTMLElement {
         ${this._switch("show_daily", t.editorDaily, this._config.show_daily !== false)}
         ${this._switch("show_efficiency", t.editorEfficiency, this._config.show_efficiency !== false)}
         ${this._switch("animation", t.editorAnimation, this._config.animation !== false)}
+        ${this._switch("show_controls", t.editorControls, this._config.show_controls !== false)}
         <p class="hint">${escapeHtml(t.dataHint)}</p>
       </div>`;
 
@@ -1630,7 +2591,7 @@ class DeyeCloudEnergyFlowCardEditor extends HTMLElement {
     this.shadowRoot.getElementById("title")?.addEventListener("change", (event) =>
       this._setValue("title", event.target.value.trim() || undefined)
     );
-    ["show_daily", "show_efficiency", "animation"].forEach((key) => {
+    ["show_daily", "show_efficiency", "animation", "show_controls"].forEach((key) => {
       this.shadowRoot.getElementById(key)?.addEventListener("change", (event) =>
         this._setValue(key, event.target.checked)
       );

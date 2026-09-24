@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.5.0
+
+- Energy Flow card: new **Inverter control** section, shown when remote control is enabled.
+  - Segmented pickers for work mode and energy priority.
+  - Switch tiles for grid charge, solar sell and time of use.
+  - A 24-hour time-of-use timeline with a now marker and the active slot's target SOC and power.
+  - Inline-editable limits for charge/discharge current, grid charge current and max sell/solar power.
+- Every change needs an explicit confirmation before it is sent, shows progress while the inverter confirms, then reports success or the inverter's error.
+- New card option `show_controls` (visual editor: "Show inverter controls").
+- Control entities expose `station_id`, `device_sn`, `control_key`, `settings_read_at` and the time-of-use `slots` for the card.
+
 ## 2.4.1
 
 - Control entities now show the inverter's real settings instead of `unknown`. Settings are read back from the inverter shortly after startup and every 30 minutes (`/strategy/dynamicControl/read`) and decoded for Deye single-phase hybrids (SUN-xK-SG0xLP1): work mode, grid charge, solar sell, time of use, max charge/discharge current, grid charge current and max sell power.
