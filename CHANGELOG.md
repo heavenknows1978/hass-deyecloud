@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.0
+
+- Optimizers (issue #28): each optimizer in the station now gets its own device, linked to the station, with **Production Today** and **Production This Month** sensors (kWh, `total_increasing`), so per-panel output can be compared and added to the Energy Dashboard.
+- Values come from the official OpenAPI `/device/history` (daily buckets), refreshed every 15 minutes, using the plant's local day.
+- The OpenAPI does not currently return live power (W) for optimizers, so there are no per-panel power sensors yet.
+- Spanish translation for the setup/options forms and the Energy Flow card (`es`), also selectable as card language.
+
 ## 2.5.2
 
 - Energy Flow card: on wide cards (1000px and up), **Inverter control** moves into a second column next to the power-flow diagram, efficiency and today's energy.

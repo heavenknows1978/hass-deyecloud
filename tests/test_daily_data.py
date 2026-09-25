@@ -184,5 +184,34 @@ class MonthEndTodayTests(unittest.TestCase):
         self.assertIsNone(record["chargeValue"])
 
 
+class OptimizerProductionTests(unittest.TestCase):
+    """Per-panel optimizer production from /device/history (issue #28)."""
+
+    DATA_LIST = [
+        {"time": "2026-09-23", "itemList": [{"unit": "kWh", "value": "2.55", "key": "Production"}]},
+        {"time": "2026-09-24", "itemList": [{"unit": "kWh", "value": "2.64", "key": "Production"}]},
+    ]
+
+    def test_today_and_month(self):
+        record = DATA.optimizer_production(self.DATA_LIST, "2026-09-24")
+        self.assertEqual(record, {"date": "2026-09-24", "today": 2.64, "month": 5.19})
+
+    def test_missing_today_bucket_is_zero(self):
+        record = DATA.optimizer_production(self.DATA_LIST[:1], "2026-09-24")
+        self.assertEqual(record["today"], 0.0)
+        self.assertEqual(record["month"], 2.55)
+
+    def test_never_decreases_within_day(self):
+        previous = {"date": "2026-09-24", "today": 2.7, "month": 5.3}
+        record = DATA.optimizer_production(self.DATA_LIST, "2026-09-24", previous)
+        self.assertEqual(record["today"], 2.7)
+        self.assertEqual(record["month"], 5.3)
+
+    def test_resets_on_new_month(self):
+        previous = {"date": "2026-09-30", "today": 2.7, "month": 60.0}
+        record = DATA.optimizer_production([], "2026-10-01", previous)
+        self.assertEqual((record["today"], record["month"]), (0.0, 0.0))
+
+
 if __name__ == "__main__":
     unittest.main()

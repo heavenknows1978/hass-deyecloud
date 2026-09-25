@@ -39,6 +39,7 @@ from .data import (
     batched_device_serials,
     derive_today_from_month as _derive_today_from_month,
     empty_daily_record as _empty_daily_record,
+    optimizer_production as _optimizer_production,
     should_reject_stale_today as _should_reject_stale_today,
     unique_keys as _unique_keys,
 )
@@ -54,6 +55,10 @@ CURRENT_MONTH_REFRESH_INTERVAL = timedelta(minutes=15)
 # an occasional refresh instead of one extra API call per poll (issue #29).
 DEVICE_LIST_REFRESH_INTERVAL = timedelta(hours=1)
 HISTORY_START_MONTH = "2024-01"
+# Optimizers only expose a daily Production bucket (one /device/history call
+# per optimizer), so poll them far less often than the live station data.
+OPTIMIZER_REFRESH_INTERVAL = timedelta(minutes=15)
+_OPTIMIZER_DEVICE_TYPES = {"OPTIMIZER"}
 
 # /station/device returns every hardware type in the plant. Collectors
 # (data loggers) expose no measure points; everything else is passed to
@@ -592,6 +597,7 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
         self._device_list_cache: dict[str, list[dict]] = {}
         self._device_list_last_update: dict[str, datetime] = {}
         self._measure_points_cache: dict[str, list[str]] = {}
+        self._optimizer_last_update: dict[str, datetime] = {}
 
     @property
     def base_url(self) -> str:
@@ -759,6 +765,7 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
             # Unknown during API delays or edge cases around midnight/month end.
             "daily": dict(previous_daily),
             "devices": {},
+            "optimizers": dict(previous_station_data.get("optimizers", {})),
         }
 
         # /station/latest exposes the aggregate real-time flow values requested
@@ -1046,7 +1053,68 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
         except Exception as exc:
             _LOGGER.error("Error updating devices for station %s: %s", station_id, exc)
 
+        try:
+            await self._async_update_optimizers(session, station_id, base_url, station_info, data)
+        except Exception as exc:
+            _LOGGER.error("Error updating optimizers for station %s: %s", station_id, exc)
+
         return (station_id, data)
+
+    async def _async_update_optimizers(self, session, station_id, base_url, station_info, data):
+        """Refresh per-panel optimizer production (issue #28).
+
+        /device/latest returns nothing for optimizers, but /device/history
+        with daily granularity reports each optimizer's Production.
+        """
+        items = [
+            item
+            for item in self._device_list_cache.get(station_id, [])
+            if item.get("deviceType") in _OPTIMIZER_DEVICE_TYPES
+        ]
+        if not items:
+            return
+
+        now = dt_util.now()
+        last = self._optimizer_last_update.get(station_id)
+        if data["optimizers"] and last and now - last < OPTIMIZER_REFRESH_INTERVAL:
+            return
+
+        # Daily buckets follow the plant's local day, not Home Assistant's.
+        # (async lookup: loading tz data directly is blocking I/O in the loop.)
+        tz = None
+        if station_info.get("regionTimezone"):
+            tz = await dt_util.async_get_time_zone(station_info["regionTimezone"])
+        tz = tz or dt_util.DEFAULT_TIME_ZONE
+        today = dt_util.now(tz).date()
+        start = today.replace(day=1)
+
+        for item in items:
+            sn = str(item["deviceSn"])
+            j = await _post_json(
+                session,
+                f"{base_url}/device/history",
+                headers={"Authorization": f"Bearer {self.token}"},
+                payload={
+                    "deviceSn": sn,
+                    "granularity": 2,
+                    "startAt": start.isoformat(),
+                    "endAt": today.isoformat(),
+                },
+                timeout=10,
+            )
+            if not j.get("success"):
+                _LOGGER.debug("Optimizer history for %s failed: %s", sn, j.get("msg"))
+                continue
+            record = _optimizer_production(
+                j.get("dataList"), today.isoformat(), data["optimizers"].get(sn)
+            )
+            record.update(
+                device_id=item.get("deviceId"),
+                connect_status=item.get("connectStatus"),
+                collection_time=item.get("collectionTime"),
+            )
+            data["optimizers"][sn] = record
+        self._optimizer_last_update[station_id] = now
 
 
 def _device_type_label(device_type: str | None) -> str:
@@ -1183,6 +1251,12 @@ class DeyeCloudSensor(CoordinatorEntity, SensorEntity):
                     station_data.get("latest", {}).get(self._metric_key)
                 )
 
+            elif self._sensor_type == "optimizer":
+                record = station_data.get("optimizers", {}).get(self._device_sn)
+                if not record:
+                    return None
+                return record.get(self._metric_key)
+
             elif self._sensor_type == "device":
                 device_data = station_data.get("devices", {}).get(self._device_sn, {})
                 for data_item in device_data.get("dataList") or []:
@@ -1199,12 +1273,15 @@ class DeyeCloudSensor(CoordinatorEntity, SensorEntity):
         """Return device information."""
         if self._device_sn:
             label = _device_type_label(self._device_type)
-            return {
+            info = {
                 "identifiers": {(DOMAIN, self._device_sn)},
                 "name": f"Deye {label} {self._device_sn}",
                 "manufacturer": "Deye",
                 "model": label,
             }
+            if self._sensor_type == "optimizer" and self._station_id:
+                info["via_device"] = (DOMAIN, f"station_{self._station_id}")
+            return info
 
         if self._station_id:
             return {
@@ -1281,6 +1358,17 @@ class DeyeCloudSensor(CoordinatorEntity, SensorEntity):
 
         if self._device_sn:
             attrs["device_sn"] = self._device_sn
+
+        if self._sensor_type == "optimizer" and self._station_id:
+            record = (
+                (self.coordinator.data or {})
+                .get(self._station_id, {})
+                .get("optimizers", {})
+                .get(self._device_sn)
+            ) or {}
+            for key in ("date", "device_id", "connect_status", "collection_time"):
+                if record.get(key) is not None:
+                    attrs[key] = record[key]
 
         return attrs
 
@@ -1488,6 +1576,24 @@ async def async_setup_entry(
                         "device_state": device_data.get("deviceState"),
                         "collection_time": device_data.get("collectionTime"),
                     },
+                ))
+
+        # Per-panel optimizer production (issue #28).
+        for device_sn in station_data.get("optimizers", {}):
+            for metric_key, metric_name in (("today", "Production Today"), ("month", "Production This Month")):
+                entities.append(DeyeCloudSensor(
+                    coordinator=coordinator,
+                    sensor_type="optimizer",
+                    name=metric_name,
+                    unique_id=f"optimizer_{device_sn}_production_{metric_key}",
+                    unit="kWh",
+                    device_class="energy",
+                    # Resets at local midnight / month start, then increases.
+                    state_class="total_increasing",
+                    station_id=station_id,
+                    metric_key=metric_key,
+                    device_sn=str(device_sn),
+                    device_type="OPTIMIZER",
                 ))
 
     async_add_entities(entities)

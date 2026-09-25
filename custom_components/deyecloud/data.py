@@ -142,3 +142,45 @@ def derive_today_from_month(
         record[key] = value
 
     return record
+
+
+def optimizer_production(
+    data_list,
+    day: str,
+    previous: dict | None = None,
+) -> dict:
+    """Today / current-month production of one optimizer.
+
+    `data_list` is the `dataList` of /device/history with granularity 2
+    (one bucket per day) requested from the first day of the month to
+    `day`. Optimizers only report a daily `Production` bucket through the
+    OpenAPI; their live power is not exposed (issue #28).
+    """
+    today = 0.0
+    month = 0.0
+    for bucket in data_list or []:
+        if not isinstance(bucket, dict):
+            continue
+        value = None
+        for item in bucket.get("itemList") or []:
+            if isinstance(item, dict) and item.get("key") == "Production":
+                try:
+                    value = float(item.get("value"))
+                except (TypeError, ValueError):
+                    value = None
+                break
+        if value is None:
+            continue
+        month += value
+        if str(bucket.get("time")) == day:
+            today = value
+
+    today = round(today, 2)
+    month = round(month, 2)
+    # Both are total_increasing meters: never let cloud rounding move them
+    # backwards within the same day / month.
+    if previous and previous.get("date") == day:
+        today = max(today, previous.get("today") or 0.0)
+    if previous and str(previous.get("date", ""))[:7] == day[:7]:
+        month = max(month, previous.get("month") or 0.0)
+    return {"date": day, "today": today, "month": month}

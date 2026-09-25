@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Conectar con DeyeCloud",
+        "description": "Introduce tus credenciales de la OpenAPI de DeyeCloud.",
+        "data": {
+          "username": "Usuario o correo electrónico",
+          "password": "Contraseña",
+          "app_id": "App ID",
+          "app_secret": "App Secret",
+          "base_url": "URL base",
+          "start_month": "Mes de inicio",
+          "company_id": "ID de empresa (opcional)",
+          "card_language": "Idioma de la tarjeta",
+          "scan_interval": "Intervalo de actualización (minutos)",
+          "enable_control": "Activar control remoto (cambia los ajustes reales del inversor)"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Error de autenticación. Revisa el usuario/correo, la contraseña, el App ID, el App Secret y la URL base.",
+      "no_stations_found": "Autenticación correcta, pero no hay plantas accesibles. Las cuentas de instalador deben indicar un ID de empresa válido."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configurar DeyeCloud",
+        "description": "Actualiza las credenciales de la OpenAPI de DeyeCloud, el idioma de la tarjeta y el intervalo de consulta. Aumenta el intervalo si alcanzas las cuotas de la API de DeyeCloud.",
+        "data": {
+          "username": "Usuario o correo electrónico",
+          "password": "Contraseña",
+          "app_id": "App ID",
+          "app_secret": "App Secret",
+          "base_url": "URL base",
+          "start_month": "Mes de inicio",
+          "company_id": "ID de empresa (opcional)",
+          "card_language": "Idioma de la tarjeta",
+          "scan_interval": "Intervalo de actualización (minutos)",
+          "enable_control": "Activar control remoto (cambia los ajustes reales del inversor)"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Error de autenticación. Revisa el usuario/correo, la contraseña, el App ID, el App Secret y la URL base.",
+      "no_stations_found": "Autenticación correcta, pero no hay plantas accesibles. Las cuentas de instalador deben indicar un ID de empresa válido."
+    }
+  }
+}

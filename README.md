@@ -21,7 +21,8 @@ A custom integration to connect your Home Assistant with your Deye solar inverte
 - ⚡ Bundled **DeyeCloud Energy Flow** Lovelace card (no separate frontend install)
 - 🖼️ Animated realtime PV → inverter → load / battery / grid diagram
 - 🔎 Automatic entity discovery by `station_id`, with multi-station selector
-- 🌗 Responsive light/dark design with Vietnamese and English labels
+- 🔆 Per-panel optimizer production (today and this month) for stations with Deye optimizers
+- 🌗 Responsive light/dark design with English, Vietnamese, Russian and Spanish labels
 
 ---
 
