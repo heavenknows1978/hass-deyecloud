@@ -22,7 +22,7 @@ A custom integration to connect your Home Assistant with your Deye solar inverte
 - 🖼️ Animated realtime PV → inverter → load / battery / grid diagram
 - 🔎 Automatic entity discovery by `station_id`, with multi-station selector
 - 🔆 Per-panel optimizer production (today and this month) and average power for stations with Deye optimizers
-- 🌗 Responsive light/dark design with English, Vietnamese, Russian and Spanish labels
+- 🌗 Responsive light/dark design with English, Vietnamese, Russian, Spanish and Ukrainian labels
 
 ---
 

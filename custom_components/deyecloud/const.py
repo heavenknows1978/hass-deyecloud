@@ -15,6 +15,7 @@ CARD_LANGUAGES = {
     "ru": "Русский",
     "vi": "Tiếng Việt",
     "es": "Español",
+    "uk": "Українська",
 }
 
 # Optional. Required for some DeyeCloud installer/business accounts.
