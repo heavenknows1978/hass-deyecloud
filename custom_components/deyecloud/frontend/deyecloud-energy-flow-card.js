@@ -100,6 +100,7 @@ const STRINGS = {
     editorStation: "Trạm DeyeCloud",
     editorTitle: "Tiêu đề tùy chỉnh",
     editorDaily: "Hiển thị năng lượng hôm nay",
+    editorSolar: "Hiển thị tấm pin mặt trời",
     editorEfficiency: "Hiển thị chỉ số hiệu quả",
     editorAnimation: "Hiệu ứng luồng điện",
     auto: "Tự động",
@@ -191,6 +192,7 @@ const STRINGS = {
     editorStation: "Станция DeyeCloud",
     editorTitle: "Собственный заголовок",
     editorDaily: "Показывать энергию за сегодня",
+    editorSolar: "Показывать солнечные панели",
     editorEfficiency: "Показывать показатели эффективности",
     editorAnimation: "Анимация потоков энергии",
     auto: "Автоматически",
@@ -282,6 +284,7 @@ const STRINGS = {
     editorStation: "Planta DeyeCloud",
     editorTitle: "Título personalizado",
     editorDaily: "Mostrar la energía de hoy",
+    editorSolar: "Mostrar paneles solares",
     editorEfficiency: "Mostrar indicadores de eficiencia",
     editorAnimation: "Animar el flujo de energía",
     auto: "Automático",
@@ -373,6 +376,7 @@ const STRINGS = {
     editorStation: "DeyeCloud station",
     editorTitle: "Custom title",
     editorDaily: "Show today's energy",
+    editorSolar: "Show solar array",
     editorEfficiency: "Show efficiency indicators",
     editorAnimation: "Animate power flow",
     auto: "Automatic",
@@ -589,6 +593,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
   static getStubConfig() {
     return {
       show_daily: true,
+      show_solar: true,
       show_efficiency: true,
       animation: true,
     };
@@ -610,6 +615,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
 
     this._config = {
       show_daily: true,
+      show_solar: true,
       show_efficiency: true,
       animation: true,
       ...normalized,
@@ -637,7 +643,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
   getGridOptions() {
     return {
       columns: 12,
-      rows: this._config.show_daily === false ? 6 : 8,
+      rows: (this._config.show_daily === false ? 6 : 8) - (this._config.show_solar === false ? 2 : 0),
       min_columns: 6,
       min_rows: 5,
     };
@@ -941,6 +947,11 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
     ];
 
     const controlsHtml = this._controlsSection(stationId, t, locale);
+    const showSolar = this._config.show_solar !== false;
+    // Without solar the diagram has two rows: battery / inverter / grid, then home.
+    const geo = showSolar
+      ? { height: 640, mid: 320, loadFrom: 402, loadTo: 520 }
+      : { height: 440, mid: 110, loadFrom: 182, loadTo: 318 };
     this.shadowRoot.innerHTML = `
       ${this._styles()}
       <ha-card class="energy-card ${animationClass}">
@@ -961,28 +972,28 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
 
         <div class="card-body ${controlsHtml ? "has-controls" : ""}">
         <div class="main-col">
-        <section class="diagram-stage" aria-label="${escapeHtml(t.diagramLabel)}">
+        <section class="diagram-stage ${showSolar ? "" : "no-solar"}" aria-label="${escapeHtml(t.diagramLabel)}">
           <div class="ambient ambient-one"></div>
           <div class="ambient ambient-two"></div>
-          <svg class="flow-svg" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-hidden="true">
-            <path class="flow-base" d="M500 120 C500 160 500 190 500 238" />
-            <path class="flow-base" d="M232 320 C290 320 336 320 392 320" />
-            <path class="flow-base" d="M608 320 C664 320 710 320 768 320" />
-            <path class="flow-base" d="M500 402 C500 442 500 478 500 520" />
+          <svg class="flow-svg" viewBox="0 0 1000 ${geo.height}" preserveAspectRatio="none" aria-hidden="true">
+            ${showSolar ? '<path class="flow-base" d="M500 120 C500 160 500 190 500 238" />' : ""}
+            <path class="flow-base" d="M232 ${geo.mid} C290 ${geo.mid} 336 ${geo.mid} 392 ${geo.mid}" />
+            <path class="flow-base" d="M608 ${geo.mid} C664 ${geo.mid} 710 ${geo.mid} 768 ${geo.mid}" />
+            <path class="flow-base" d="M500 ${geo.loadFrom} L500 ${geo.loadTo}" />
 
-            ${solarActive ? '<path class="flow-line solar-flow" d="M500 120 C500 160 500 190 500 238" />' : ""}
-            ${batteryChargeActive || batteryDischargeActive ? `<path class="flow-line battery-flow ${batteryChargeActive ? "reverse" : ""}" d="M232 320 C290 320 336 320 392 320" />` : ""}
-            ${gridImportActive || gridExportActive ? `<path class="flow-line grid-flow ${gridImportActive ? "reverse" : ""}" d="M608 320 C664 320 710 320 768 320" />` : ""}
-            ${loadActive ? '<path class="flow-line load-flow" d="M500 402 C500 442 500 478 500 520" />' : ""}
+            ${showSolar && solarActive ? '<path class="flow-line solar-flow" d="M500 120 C500 160 500 190 500 238" />' : ""}
+            ${batteryChargeActive || batteryDischargeActive ? `<path class="flow-line battery-flow ${batteryChargeActive ? "reverse" : ""}" d="M232 ${geo.mid} C290 ${geo.mid} 336 ${geo.mid} 392 ${geo.mid}" />` : ""}
+            ${gridImportActive || gridExportActive ? `<path class="flow-line grid-flow ${gridImportActive ? "reverse" : ""}" d="M608 ${geo.mid} C664 ${geo.mid} 710 ${geo.mid} 768 ${geo.mid}" />` : ""}
+            ${loadActive ? `<path class="flow-line load-flow" d="M500 ${geo.loadFrom} L500 ${geo.loadTo}" />` : ""}
           </svg>
 
-          ${solarActive ? `<span class="flow-label solar-label">${escapeHtml(formatPower(values.solar, locale))}</span>` : ""}
+          ${showSolar && solarActive ? `<span class="flow-label solar-label">${escapeHtml(formatPower(values.solar, locale))}</span>` : ""}
           ${(batteryChargeActive || batteryDischargeActive) ? `<span class="flow-label battery-label">${escapeHtml(formatPower(batteryDisplayPower, locale))}</span>` : ""}
           ${(gridImportActive || gridExportActive) ? `<span class="flow-label grid-label">${escapeHtml(formatPower(gridDisplayPower, locale))}</span>` : ""}
           ${loadActive ? `<span class="flow-label load-label">${escapeHtml(formatPower(values.load, locale))}</span>` : ""}
 
           <div class="diagram-grid">
-            <div class="node-slot solar-slot">
+            ${showSolar ? `<div class="node-slot solar-slot">
               ${node({
                 className: `solar-node ${solarActive ? "active" : ""}`,
                 title: t.solar,
@@ -991,7 +1002,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
                 icon: iconSolar(),
                 entityId: entities.solar?.entityId,
               })}
-            </div>
+            </div>` : ""}
             <div class="node-slot battery-slot">
               ${node({
                 className: `battery-node ${batteryChargeActive || batteryDischargeActive ? "active" : ""}`,
@@ -1755,6 +1766,14 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         .grid-slot { grid-column: 3; grid-row: 2; justify-content: flex-end; }
         .home-slot { grid-column: 2; grid-row: 3; }
 
+        .diagram-stage.no-solar { aspect-ratio: 5 / 2; min-height: 260px; max-height: 340px; }
+        .no-solar .ambient-one { display: none; }
+        .no-solar .diagram-grid { grid-template-rows: minmax(110px, 1fr) minmax(90px, 1fr); }
+        .no-solar .battery-slot, .no-solar .inverter-slot, .no-solar .grid-slot { grid-row: 1; }
+        .no-solar .home-slot { grid-row: 2; }
+        .no-solar .battery-label, .no-solar .grid-label { top: 25%; }
+        .no-solar .load-label { top: 56%; }
+
         .flow-node {
           position: relative;
           z-index: 3;
@@ -1953,6 +1972,11 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           background: linear-gradient(90deg, color-mix(in srgb, var(--deye-load) 72%, white), var(--deye-load));
         }
 
+        /* Same bottom spacing as the daily section when the diagram or efficiency
+           strip is the last block (daily energy and/or efficiency hidden). */
+        .main-col > .diagram-stage:last-child,
+        .main-col > .performance-section:last-child { margin-bottom: 18px; }
+
         .daily-section {
           margin: 14px 16px 18px;
           padding: 16px;
@@ -2085,6 +2109,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         }
         @container (max-width: 520px) {
           .diagram-stage { aspect-ratio: 1 / 1.02; min-height: 370px; }
+          .diagram-stage.no-solar { aspect-ratio: 3 / 2; min-height: 250px; }
           .diagram-grid {
             grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr);
             gap: 10px;
@@ -2135,6 +2160,8 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           .updated-at { display: none; }
           .brand-mark { width: 42px; height: 42px; }
           .diagram-stage { width: calc(100% - 16px); margin-inline: 8px; min-height: 360px; aspect-ratio: 1 / 1; }
+          .diagram-stage.no-solar { min-height: 240px; aspect-ratio: 3 / 2; }
+          .no-solar .diagram-grid { grid-template-rows: auto auto; }
           .diagram-grid {
             inset: 14px 10px;
             grid-template-columns: 1fr 1fr 1fr;
@@ -2714,6 +2741,7 @@ class DeyeCloudEnergyFlowCardEditor extends HTMLElement {
           <input id="title" type="text" value="${escapeHtml(this._config.title || "")}" placeholder="${escapeHtml(t.defaultTitle)}" />
         </label>
         ${this._switch("show_daily", t.editorDaily, this._config.show_daily !== false)}
+        ${this._switch("show_solar", t.editorSolar, this._config.show_solar !== false)}
         ${this._switch("show_efficiency", t.editorEfficiency, this._config.show_efficiency !== false)}
         ${this._switch("animation", t.editorAnimation, this._config.animation !== false)}
         ${this._switch("show_controls", t.editorControls, this._config.show_controls !== false)}
