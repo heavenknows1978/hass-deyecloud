@@ -39,9 +39,11 @@ from .data import (
     batched_device_serials,
     derive_today_from_month as _derive_today_from_month,
     empty_daily_record as _empty_daily_record,
+    lifetime_total as _lifetime_total,
     optimizer_average_power as _optimizer_average_power,
     optimizer_production as _optimizer_production,
     should_reject_stale_today as _should_reject_stale_today,
+    sum_daily_records as _sum_daily_records,
     unique_keys as _unique_keys,
 )
 
@@ -59,6 +61,11 @@ HISTORY_START_MONTH = "2024-01"
 # Optimizers only expose a daily Production bucket (one /device/history call
 # per optimizer), so poll them far less often than the live station data.
 OPTIMIZER_REFRESH_INTERVAL = timedelta(minutes=15)
+# Last 7 Days = the three live daily buckets (today, yesterday, day before)
+# plus four closed days. Closed days never change, so they are fetched once
+# per day and retried at this interval only while one is still missing.
+WEEK_DAYS = 7
+WEEK_RETRY_INTERVAL = timedelta(hours=1)
 _OPTIMIZER_DEVICE_TYPES = {"OPTIMIZER"}
 
 # /station/device returns every hardware type in the plant. Collectors
@@ -599,6 +606,7 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
         self._device_list_last_update: dict[str, datetime] = {}
         self._measure_points_cache: dict[str, list[str]] = {}
         self._optimizer_last_update: dict[str, datetime] = {}
+        self._week_cache: dict[str, dict] = {}
 
     @property
     def base_url(self) -> str:
@@ -737,6 +745,50 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
             cached_today,
         )
 
+    async def _get_closed_week_days(self, session, station_id, base_url, today_date):
+        """Return the daily records of the 4 closed days before Day Before."""
+        days = [
+            today_date - timedelta(days=offset)
+            for offset in range(WEEK_DAYS - 1, len(_RELATIVE_DAY_OFFSETS) - 1, -1)
+        ]
+        wanted = {d.isoformat() for d in days}
+        cached = self._week_cache.get(station_id, {})
+        records = {k: v for k, v in cached.get("days", {}).items() if k in wanted}
+        now = dt_util.now()
+        if len(records) == len(days) or (
+            cached.get("fetched") is not None
+            and cached.get("date") == today_date
+            and now - cached["fetched"] < WEEK_RETRY_INTERVAL
+        ):
+            return records
+
+        try:
+            # endAt is exclusive and always falls in a month that has started,
+            # so the month-end empty response (issue #25) cannot hit it.
+            items = await _async_daily_history(
+                session,
+                self.token,
+                station_id,
+                base_url,
+                days[0].isoformat(),
+                (days[-1] + timedelta(days=1)).isoformat(),
+            )
+        except Exception as exc:
+            _LOGGER.debug("Last 7 days request failed for station %s: %s", station_id, exc)
+            items = []
+
+        positional = {}
+        if len(items) == len(days) and all(_record_date(item) is None for item in items):
+            positional = {d.isoformat(): item for d, item in zip(days, items)}
+        for d in days:
+            day = d.isoformat()
+            item = _select_daily_record(items, day, allow_undated_fallback=False) or positional.get(day)
+            if item is not None:
+                records[day] = item
+
+        self._week_cache[station_id] = {"days": records, "fetched": now, "date": today_date}
+        return records
+
     async def _async_station_devices(self, session, station_id, base_url, station_info):
         """Return the station device list, refreshing it only occasionally."""
         now = dt_util.now()
@@ -765,6 +817,7 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
             # no daily record. This prevents Today sensors from jumping to
             # Unknown during API delays or edge cases around midnight/month end.
             "daily": dict(previous_daily),
+            "week": dict(previous_station_data.get("week", {})),
             "devices": {},
             "optimizers": dict(previous_station_data.get("optimizers", {})),
         }
@@ -996,6 +1049,10 @@ class DeyeCloudCoordinator(DataUpdateCoordinator):
             }
         except Exception as exc:
             _LOGGER.error("Error updating daily history for station %s: %s", station_id, exc)
+
+        data["week"] = await self._get_closed_week_days(
+            session, station_id, base_url, dt_util.now().date()
+        )
 
         # Device updates should still run even if history fails.
         try:
@@ -1251,6 +1308,16 @@ class DeyeCloudSensor(CoordinatorEntity, SensorEntity):
                     return None
                 return _as_float_or_original(daily_data.get(self._metric_key))
 
+            elif self._sensor_type == "period":
+                if self._date_key == "all_time":
+                    return _lifetime_total(station_data.get("history", []), self._metric_key)
+                today = dt_util.now().date()
+                records = {**station_data.get("week", {}), **station_data.get("daily", {})}
+                return _sum_daily_records(
+                    [records.get((today - timedelta(days=o)).isoformat()) for o in range(WEEK_DAYS)],
+                    self._metric_key,
+                )
+
             elif self._sensor_type == "station_latest":
                 return _as_float_or_original(
                     station_data.get("latest", {}).get(self._metric_key)
@@ -1357,9 +1424,20 @@ class DeyeCloudSensor(CoordinatorEntity, SensorEntity):
                 attrs["year"] = target.year
                 attrs["month"] = target.month
                 attrs["metric_key"] = self._metric_key
+                attrs["period"] = f"{self._date_key}_month"
             elif self._sensor_type == "daily":
                 attrs["relative_day"] = self._date_key
                 attrs["date"] = _resolve_daily_date_key(self._date_key)
+            elif self._sensor_type == "period":
+                attrs["period"] = self._date_key
+                if self._date_key == "all_time":
+                    months = [
+                        (r["year"], r["month"])
+                        for r in ((self.coordinator.data or {}).get(self._station_id, {}).get("history") or [])
+                        if r.get("year") and r.get("month")
+                    ]
+                    if months:
+                        attrs["since"] = "%04d-%02d" % min(months)
 
         if self._device_sn:
             attrs["device_sn"] = self._device_sn
@@ -1413,6 +1491,16 @@ async def async_setup_entry(
         ("chargeValue", "Daily Battery Charge"),
         ("dischargeValue", "Daily Battery Discharge"),
     ]
+
+    _PERIOD_METRICS = [
+        ("generationValue", "Solar Generation"),
+        ("consumptionValue", "Consumption"),
+        ("gridValue", "Grid Export"),
+        ("purchaseValue", "Grid Import"),
+        ("chargeValue", "Battery Charge"),
+        ("dischargeValue", "Battery Discharge"),
+    ]
+    _PERIOD_LABELS = {"last_7_days": "Last 7 Days", "all_time": "Total"}
 
     for station_id, station_data in coordinator.data.items():
         station_id = str(station_id)
@@ -1501,6 +1589,24 @@ async def async_setup_entry(
                 metric_key=metric_key,
                 extra_attributes={"metric": metric_name},
             ))
+
+        # Rolling 7-day and lifetime (since the configured start month) totals
+        # for the card's period picker. No state_class: a rolling window is not
+        # a meter, and the lifetime sum can dip while history reloads.
+        for period, label in _PERIOD_LABELS.items():
+            for metric_key, metric_name in _PERIOD_METRICS:
+                entities.append(DeyeCloudSensor(
+                    coordinator=coordinator,
+                    sensor_type="period",
+                    name=f"{metric_name} {label} {station_id}",
+                    unique_id=f"{station_id}_{metric_key}_{period}",
+                    unit="kWh",
+                    device_class="energy",
+                    station_id=station_id,
+                    date_key=period,
+                    metric_key=metric_key,
+                    extra_attributes={"period": period},
+                ))
 
         # Daily metrics use relative keys so they roll over automatically at day change.
         for rel_key, label in _DAILY_LABELS.items():

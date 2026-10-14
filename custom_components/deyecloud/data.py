@@ -144,6 +144,31 @@ def derive_today_from_month(
     return record
 
 
+def sum_daily_records(records: list[dict | None], key: str) -> float | None:
+    """Sum one metric over daily records, or None when any day is missing.
+
+    A partial window would read lower than the real total, so the
+    Last 7 Days sensors stay Unknown until every day is known.
+    """
+    total = 0.0
+    for record in records:
+        value = _numeric_value(record, key)
+        if value is None:
+            return None
+        total += value
+    return round(total, 2)
+
+
+def lifetime_total(history: list[dict], key: str) -> float | None:
+    """Sum one metric over every monthly history record."""
+    values = [
+        value
+        for record in history or []
+        if (value := _numeric_value(record, key)) is not None
+    ]
+    return round(sum(values), 2) if values else None
+
+
 def optimizer_production(
     data_list,
     day: str,

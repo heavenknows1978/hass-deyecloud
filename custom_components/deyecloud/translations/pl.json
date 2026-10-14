@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Połącz z DeyeCloud",
+        "description": "Podaj dane logowania do DeyeCloud OpenAPI.",
+        "data": {
+          "username": "Nazwa użytkownika lub e-mail",
+          "password": "Hasło",
+          "app_id": "App ID",
+          "app_secret": "App Secret",
+          "base_url": "Adres bazowy (Base URL)",
+          "start_month": "Miesiąc początkowy",
+          "company_id": "ID firmy (opcjonalnie)",
+          "card_language": "Język karty",
+          "scan_interval": "Interwał aktualizacji (minuty)",
+          "enable_control": "Włącz zdalne sterowanie (zmienia rzeczywiste ustawienia falownika)"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Uwierzytelnianie nie powiodło się. Sprawdź nazwę użytkownika/e-mail, hasło, App ID, App Secret i adres bazowy.",
+      "no_stations_found": "Uwierzytelnianie powiodło się, ale nie znaleziono dostępnych instalacji. Konta instalatorów muszą podać prawidłowe ID firmy."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Konfiguracja DeyeCloud",
+        "description": "Zmień dane logowania do DeyeCloud OpenAPI, język karty i interwał odpytywania. Zwiększ interwał, jeśli przekraczasz limity API DeyeCloud.",
+        "data": {
+          "username": "Nazwa użytkownika lub e-mail",
+          "password": "Hasło",
+          "app_id": "App ID",
+          "app_secret": "App Secret",
+          "base_url": "Adres bazowy (Base URL)",
+          "start_month": "Miesiąc początkowy",
+          "company_id": "ID firmy (opcjonalnie)",
+          "card_language": "Język karty",
+          "scan_interval": "Interwał aktualizacji (minuty)",
+          "enable_control": "Włącz zdalne sterowanie (zmienia rzeczywiste ustawienia falownika)"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Uwierzytelnianie nie powiodło się. Sprawdź nazwę użytkownika/e-mail, hasło, App ID, App Secret i adres bazowy.",
+      "no_stations_found": "Uwierzytelnianie powiodło się, ale nie znaleziono dostępnych instalacji. Konta instalatorów muszą podać prawidłowe ID firmy."
+    }
+  }
+}

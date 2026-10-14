@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.7.3
+
+- Energy Flow card: the flow lines are drawn between the real edges of the nodes and follow the card when it resizes. They used fixed diagram coordinates, so at many card widths they ran into the battery and grid nodes.
+- Value labels on the lines are hidden when the line is too short to hold them, instead of covering the nodes. Narrow cards get a wider gap between the middle-row nodes so the battery and grid lines stay visible.
+
+## 2.7.2
+
+- Fix the dashboard loading an old version of the Energy Flow card after an update. Home Assistant serves a `.gz` copy of the card instead of the file itself when one exists, and a copy left over from an older install kept serving the old card. Out-of-date `.gz` copies in the card folder are now removed at startup.
+
+## 2.7.1
+
+- Polish translation for the Energy Flow card and the setup/options forms (`pl`), also selectable as card language.
+
+## 2.7.0
+
+- Energy Flow card: the energy section gets period tabs: **24H**, **3D**, **7D**, **Month** and **All**. 3D adds up Today, Yesterday and Day Before; Month uses the current-month sensors.
+- New sensors per station for the six energy metrics (solar, consumption, grid import/export, battery charge/discharge):
+  - **Last 7 Days**: today plus the six previous days. Four extra closed days are fetched with one daily request, once a day (retried hourly while a day is missing). The sensor stays Unknown until all seven days are known, so a partial week never reads too low.
+  - **Total**: sum of the monthly history since the configured start month (the `since` attribute shows the first month).
+  - Neither has a state class, so they are not offered as Energy Dashboard sources.
+- `energy_period` card option (`today`, `3d`, `7d`, `month`, `all`) picks the tab shown when the dashboard opens.
+
+## 2.6.2
+
+- Energy Flow card: battery status now follows the signed **Battery Power** when the station leaves Battery Charge/Discharge Power empty or 0. A negative value shows as **Charging**, a positive one as **Discharging**, with the matching flow animation, instead of a positive value labelled Idle.
+
 ## 2.6.1
 
 - Optimizers (issue #28): new **Average Power** sensor (W) per optimizer. The OpenAPI still has no live per-panel power (`/device/latest`, `/device/measurePoints` and minute history return nothing / "device not supported" for optimizers), so the power is averaged from the growth of Production Today between refreshes.

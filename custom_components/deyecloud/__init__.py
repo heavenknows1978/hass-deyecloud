@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 from pathlib import Path
+import gzip
 import logging
 
 from homeassistant.components.frontend import add_extra_js_url
@@ -24,12 +25,34 @@ CONTROL_PLATFORMS: list[Platform] = [Platform.SWITCH, Platform.SELECT, Platform.
 # Each read is a command delivered to the inverter, so keep it infrequent.
 SETTINGS_REFRESH_INTERVAL = timedelta(minutes=30)
 
-CARD_VERSION = "2.6.0"
+CARD_VERSION = "2.7.3"
 CARD_STATIC_URL = "/deyecloud/frontend"
 CARD_MODULE_URL = (
     f"{CARD_STATIC_URL}/deyecloud-energy-flow-card.js?v={CARD_VERSION}"
 )
 DATA_FRONTEND_MODULE_URL = "frontend_module_url"
+
+
+def _remove_stale_precompressed(frontend_dir: Path) -> None:
+    """Delete .gz copies that no longer match their source file.
+
+    Home Assistant serves a .gz sibling instead of the file itself when the
+    browser accepts gzip. A copy left over from an older install (e.g. made
+    by HACS) would keep serving the old card after an update.
+    """
+    for compressed in frontend_dir.glob("*.gz"):
+        source = compressed.with_suffix("")
+        try:
+            try:
+                current = source.is_file() and gzip.decompress(compressed.read_bytes()) == source.read_bytes()
+            except (EOFError, gzip.BadGzipFile):
+                current = False
+            if current:
+                continue
+            compressed.unlink()
+            _LOGGER.info("Removed stale precompressed frontend file %s", compressed.name)
+        except OSError as exc:
+            _LOGGER.warning("Could not remove frontend file %s: %s", compressed.name, exc)
 
 
 async def _async_register_frontend(hass: HomeAssistant) -> None:
@@ -43,6 +66,8 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
     if not card_file.is_file():
         _LOGGER.error("Bundled DeyeCloud frontend card is missing: %s", card_file)
         return
+
+    await hass.async_add_executor_job(_remove_stale_precompressed, frontend_dir)
 
     await hass.http.async_register_static_paths(
         [StaticPathConfig(CARD_STATIC_URL, str(frontend_dir), False)]

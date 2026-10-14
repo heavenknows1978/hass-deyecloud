@@ -15,14 +15,14 @@ A custom integration to connect your Home Assistant with your Deye solar inverte
 ## 📥 Features
 
 - 🟢 Fetch monthly data: generation, consumption, battery, grid import/export, fetching recent days information, fetching current device status
-- 📈 Sensors for current & last month, today, yesterday...
+- 📈 Sensors for current & last month, today, yesterday, the last 7 days and the total since the start month
 - 🔃 Auto refresh every minute (no YAML needed)
 - ✅ Clean and simple setup via UI
 - ⚡ Bundled **DeyeCloud Energy Flow** Lovelace card (no separate frontend install)
 - 🖼️ Animated realtime PV → inverter → load / battery / grid diagram
 - 🔎 Automatic entity discovery by `station_id`, with multi-station selector
 - 🔆 Per-panel optimizer production (today and this month) and average power for stations with Deye optimizers
-- 🌗 Responsive light/dark design with English, Vietnamese, Russian and Spanish labels
+- 🌗 Responsive light/dark design with English, Vietnamese, Russian, Spanish and Polish labels
 
 ---
 
@@ -69,6 +69,7 @@ type: custom:deyecloud-energy-flow-card
 station_id: "12345678"   # optional; auto-selected when only one station exists
 title: FJC Solar Plant    # optional
 show_daily: true
+energy_period: today       # today | 3d | 7d | month | all (default tab)
 show_efficiency: true
 animation: true
 show_controls: true      # inverter controls, when remote control is enabled
@@ -79,7 +80,7 @@ The card automatically uses the integration's station sensors for:
 - Live solar generation and home consumption
 - Grid import/export direction and power
 - Battery charging/discharging direction, power and SOC
-- Today's production, consumption, import, export, charge and discharge
+- Production, consumption, import, export, charge and discharge for today (24H), the last 3 or 7 days, the current month or all time (since the configured start month), switched with the tabs above the tiles
 - Instant self-sufficiency, on-site PV use and power-balance diagnostics
 
 When **Enable remote control** is on, the card adds an **Inverter control** section: work mode and energy priority pickers, grid charge / solar sell / time-of-use switches, a 24-hour time-of-use timeline with the current slot highlighted, and editable current and power limits. Every change asks for confirmation before it is sent, shows progress while the inverter is confirming, and reports success or failure. Hide it with `show_controls: false`.

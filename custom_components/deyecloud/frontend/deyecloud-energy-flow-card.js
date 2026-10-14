@@ -1,4 +1,4 @@
-const CARD_VERSION = "2.6.0";
+const CARD_VERSION = "2.7.3";
 const CARD_TAG = "deyecloud-energy-flow-card-v3";
 const LEGACY_CARD_TAG = "deyecloud-energy-flow-card";
 const EDITOR_TAG = "deyecloud-energy-flow-card-v3-editor";
@@ -61,6 +61,11 @@ const DAILY_METRICS = {
   battery_discharge_today: { metricKey: "dischargeValue", name: "Daily Battery Discharge" },
 };
 
+// Energy section periods: today uses the Today sensors, 3D sums Today +
+// Yesterday + Day Before, the rest read their own integration sensors.
+const ENERGY_PERIODS = ["today", "3d", "7d", "month", "all"];
+const DAILY_RELATIVE_DAYS = ["today", "yesterday", "day_before"];
+
 const STRINGS = {
   vi: {
     locale: "vi-VN",
@@ -84,6 +89,13 @@ const STRINGS = {
     balanced: "Cân bằng",
     supplying: "Đang cấp tải",
     today: "Năng lượng hôm nay",
+    period3d: "3 ngày qua",
+    period7d: "7 ngày qua",
+    periodMonth: "Tháng này",
+    periodAll: "Toàn bộ thời gian",
+    periodMonthShort: "Tháng",
+    periodAllShort: "Tất cả",
+    periodSince: "từ {date}",
     solarToday: "Sản lượng PV",
     loadToday: "Tiêu thụ",
     importToday: "Mua từ lưới",
@@ -175,6 +187,13 @@ const STRINGS = {
     balanced: "Баланс",
     supplying: "Питание нагрузки",
     today: "Энергия за сегодня",
+    period3d: "За 3 дня",
+    period7d: "За 7 дней",
+    periodMonth: "Этот месяц",
+    periodAll: "За всё время",
+    periodMonthShort: "Месяц",
+    periodAllShort: "Всё",
+    periodSince: "с {date}",
     solarToday: "Выработка",
     loadToday: "Потребление",
     importToday: "Получено из сети",
@@ -266,6 +285,13 @@ const STRINGS = {
     balanced: "Equilibrado",
     supplying: "Alimentando el consumo",
     today: "Energía de hoy",
+    period3d: "Últimos 3 días",
+    period7d: "Últimos 7 días",
+    periodMonth: "Este mes",
+    periodAll: "Todo el tiempo",
+    periodMonthShort: "Mes",
+    periodAllShort: "Todo",
+    periodSince: "desde {date}",
     solarToday: "Producción FV",
     loadToday: "Consumo",
     importToday: "Importación de red",
@@ -335,6 +361,104 @@ const STRINGS = {
     inverterLabel: "Inversor",
     editorControls: "Mostrar controles del inversor",
   },
+  pl: {
+    locale: "pl-PL",
+    defaultTitle: "Przepływ energii Deye Solar",
+    live: "Na żywo",
+    delayed: "Opóźnione dane",
+    unavailable: "Niedostępne",
+    updated: "Zaktualizowano",
+    station: "Instalacja",
+    solar: "Panele PV",
+    inverter: "Falownik",
+    home: "Dom (obciążenie)",
+    battery: "Magazyn energii",
+    grid: "Sieć energetyczna",
+    generating: "Produkcja",
+    idle: "Bezczynny",
+    charging: "Ładowanie",
+    discharging: "Rozładowywanie",
+    importing: "Pobieranie",
+    exporting: "Oddawanie",
+    balanced: "Zbalansowany",
+    supplying: "Zasilanie obciążenia",
+    today: "Dzisiejsza energia",
+    period3d: "Ostatnie 3 dni",
+    period7d: "Ostatnie 7 dni",
+    periodMonth: "Ten miesiąc",
+    periodAll: "Cały okres",
+    periodMonthShort: "Miesiąc",
+    periodAllShort: "Wszystko",
+    periodSince: "od {date}",
+    solarToday: "Produkcja PV",
+    loadToday: "Zużycie",
+    importToday: "Pobór z sieci",
+    exportToday: "Oddanie do sieci",
+    chargeToday: "Ładowanie baterii",
+    dischargeToday: "Rozładowanie baterii",
+    selfSufficiency: "Autowystarczalność",
+    solarUtilization: "Wykorzystanie PV na miejscu",
+    powerBalance: "Bilans mocy",
+    dataHint: "Karta automatycznie wykrywa czujniki DeyeCloud po identyfikatorze stacji (station_id).",
+    noStation: "Nie znaleziono czujników DeyeCloud",
+    noStationHelp:
+      "Sprawdź, czy integracja utworzyła encje, a następnie uruchom ponownie Home Assistant.",
+    editorStation: "Stacja DeyeCloud",
+    editorTitle: "Niestandardowy tytuł",
+    editorDaily: "Pokaż dzisiejszą energię",
+    editorEfficiency: "Pokaż wskaźniki wydajności",
+    editorAnimation: "Animuj przepływ energii",
+    auto: "Automatycznie",
+    entityDetails: "Stuknij węzeł, aby otworzyć szczegóły encji",
+    excellent: "Doskonała",
+    balancedLevel: "Zrównoważony",
+    monitoring: "Monitorowanie",
+    diagramLabel: "Przepływ energii słonecznej w czasie rzeczywistym",
+    errorTitle: "Nie można wyświetlić karty DeyeCloud",
+    errorHelp:
+      "Spróbuj odświeżyć przeglądarkę (Ctrl+F5). Jeśli problem nadal występuje, zaktualizuj integrację do najnowszej wersji.",
+    unknownError: "Nieznany błąd",
+    cardName: "Przepływ energii DeyeCloud",
+    cardDescription: "Przepływ mocy solarnej, akumulatora, sieci i obciążenia w czasie rzeczywistym.",
+    controlsTitle: "Sterowanie falownikiem",
+    controlsHint: "Eksperymentalne · każda zmiana wymaga potwierdzenia",
+    settingsRead: "Ustawienia odczytane",
+    notRead: "Jeszcze nie odczytano",
+    modes: "Tryb pracy",
+    functions: "Funkcje",
+    limits: "Limity",
+    workMode: "Tryb roboczy",
+    energyPattern: "Priorytet energii",
+    modeSellingFirst: "Najpierw sprzedaż",
+    modeZeroLoad: "Zerowy eksport do obciążenia",
+    modeZeroCt: "Zerowy eksport do CT",
+    patternBattery: "Najpierw akumulator",
+    patternLoad: "Najpierw obciążenie",
+    gridCharge: "Ładowanie z sieci",
+    solarSell: "Sprzedaż energii słonecznej",
+    timeOfUse: "Czas użycia (ToU)",
+    on: "Włączone",
+    off: "Wyłączone",
+    maxChargeCurrent: "Maks. prąd ładowania",
+    maxDischargeCurrent: "Maks. prąd rozładowania",
+    gridChargeCurrent: "Prąd ładowania z sieci",
+    maxSellPower: "Maks. moc sprzedaży",
+    maxSolarPower: "Maks. moc PV",
+    touSchedule: "24-godzinny harmonogram ładowania",
+    touNow: "Teraz",
+    touTarget: "Docelowe SOC",
+    touOff: "Harmonogram czasu użycia jest wyłączony",
+    confirmTitle: "Zastosować w falowniku?",
+    apply: "Zastosuj",
+    cancel: "Anuluj",
+    edit: "Edytuj",
+    sending: "Wysyłanie do falownika…",
+    confirmed: "Potwierdzone przez falownik",
+    failed: "Falownik nie potwierdził",
+    outOfRange: "Wartość musi mieścić się w zakresie od {min} do {max}",
+    inverterLabel: "Falownik",
+    editorControls: "Pokaż sterowanie falownikiem",
+  },
   en: {
     locale: "en-US",
     defaultTitle: "Deye Solar Energy Flow",
@@ -357,6 +481,13 @@ const STRINGS = {
     balanced: "Balanced",
     supplying: "Supplying load",
     today: "Today's energy",
+    period3d: "Last 3 days",
+    period7d: "Last 7 days",
+    periodMonth: "This month",
+    periodAll: "All time",
+    periodMonthShort: "Month",
+    periodAllShort: "All",
+    periodSince: "since {date}",
     solarToday: "PV production",
     loadToday: "Consumption",
     importToday: "Grid import",
@@ -584,6 +715,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
     this._runtimeStationId = null;
     this._lastRenderSignature = "";
     this._ctrl = { confirm: null, pending: {}, toast: null, editing: null, draft: "", device: null };
+    this._period = null;
   }
 
   static getStubConfig() {
@@ -741,6 +873,65 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
     return match ? { entityId: match[0], stateObj: match[1] } : null;
   }
 
+  _energyPeriod() {
+    const period = this._period || this._config.energy_period;
+    return ENERGY_PERIODS.includes(period) ? period : "today";
+  }
+
+  // Energy entities for one daily metric over a non-today period. Returns a
+  // list whose values are summed; a missing entity makes the total unknown.
+  _periodEntities(stationId, period, metricKey) {
+    const candidates = this._statesForStation(stationId);
+    const find = (test) => {
+      const match = candidates.find(([, stateObj]) => {
+        const attrs = stateObj.attributes || {};
+        return attrs.metric_key === metricKey && test(attrs);
+      });
+      return match ? { entityId: match[0], stateObj: match[1] } : null;
+    };
+    if (period === "3d") {
+      return DAILY_RELATIVE_DAYS.map((day) =>
+        find((attrs) => attrs.sensor_type === "daily" && attrs.relative_day === day)
+      );
+    }
+    if (period === "month") {
+      const now = new Date();
+      return [
+        find((attrs) =>
+          attrs.sensor_type === "monthly_metric" &&
+          (attrs.period
+            ? attrs.period === "current_month"
+            : Number(attrs.year) === now.getFullYear() && Number(attrs.month) === now.getMonth() + 1)
+        ),
+      ];
+    }
+    const key = period === "7d" ? "last_7_days" : "all_time";
+    return [find((attrs) => attrs.sensor_type === "period" && attrs.period === key)];
+  }
+
+  _energyCard(stationId, period, todayEntity, metricName) {
+    if (period === "today") {
+      return { value: stateNumber(todayEntity?.stateObj), entityId: todayEntity?.entityId, since: null };
+    }
+    const metricKey = DAILY_METRICS[metricName].metricKey;
+    const entities = this._periodEntities(stationId, period, metricKey);
+    let value = 0;
+    for (const item of entities) {
+      const number = stateNumber(item?.stateObj);
+      if (number === null) {
+        value = null;
+        break;
+      }
+      value += number;
+    }
+    return {
+      value,
+      // 3D opens Today's history; the other periods open their own sensor.
+      entityId: (period === "3d" ? todayEntity?.entityId : entities[0]?.entityId) || null,
+      since: entities[0]?.stateObj?.attributes?.since || null,
+    };
+  }
+
   _stationName(stationId) {
     if (this._config.title) return this._config.title;
     const candidates = this._statesForStation(stationId);
@@ -827,6 +1018,14 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       batteryDischargeToday: stateNumber(entities.batteryDischargeToday?.stateObj),
     };
 
+    // Some stations leave chargePower/dischargePower empty or 0 and only
+    // report the signed batteryPower (negative = charging, positive =
+    // discharging). Derive the direction from it in that case.
+    if (values.batteryCharge <= 5 && values.batteryDischarge <= 5 && values.battery !== null) {
+      if (values.battery < 0) values.batteryCharge = -values.battery;
+      else values.batteryDischarge = values.battery;
+    }
+
     const allCurrentEntities = [
       entities.solar,
       entities.load,
@@ -880,6 +1079,30 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       values.solar + values.gridImport + values.batteryDischarge -
       values.load - values.gridExport - values.batteryCharge;
 
+    const energyPeriod = this._energyPeriod();
+    const dailyCards = [
+      ["sun", t.solarToday, "solar_today", entities.solarToday],
+      ["home", t.loadToday, "load_today", entities.loadToday],
+      ["import", t.importToday, "grid_import_today", entities.gridImportToday],
+      ["export", t.exportToday, "grid_export_today", entities.gridExportToday],
+      ["charge", t.chargeToday, "battery_charge_today", entities.batteryChargeToday],
+      ["discharge", t.dischargeToday, "battery_discharge_today", entities.batteryDischargeToday],
+    ].map(([kind, label, metricName, todayEntity]) => {
+      const card = this._energyCard(stationId, energyPeriod, todayEntity, metricName);
+      return [kind, label, card.value, card.entityId, card.since];
+    });
+    const periodLabels = {
+      today: ["24H", t.today],
+      "3d": ["3D", t.period3d],
+      "7d": ["7D", t.period7d],
+      month: [t.periodMonthShort, t.periodMonth],
+      all: [t.periodAllShort, t.periodAll],
+    };
+    const periodSince = dailyCards.find((card) => card[4])?.[4];
+    const energyHint = energyPeriod === "all" && periodSince
+      ? t.periodSince.replace("{date}", periodSince)
+      : t.entityDetails;
+
     const controlDevices = this._controlDevices(stationId);
     const signature = JSON.stringify({
       stationIds,
@@ -898,6 +1121,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         ])
       ),
       ctrl: this._ctrl,
+      energy: [energyPeriod, dailyCards.map((card) => [card[2], card[3]])],
       // Keeps the TOU "now" marker and relative times moving.
       minute: Math.floor(Date.now() / 60000),
     });
@@ -931,14 +1155,6 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         ${badge ? `<span class="node-badge">${escapeHtml(badge)}</span>` : ""}
       </button>`;
 
-    const dailyCards = [
-      ["sun", t.solarToday, values.solarToday, entities.solarToday?.entityId],
-      ["home", t.loadToday, values.loadToday, entities.loadToday?.entityId],
-      ["import", t.importToday, values.gridImportToday, entities.gridImportToday?.entityId],
-      ["export", t.exportToday, values.gridExportToday, entities.gridExportToday?.entityId],
-      ["charge", t.chargeToday, values.batteryChargeToday, entities.batteryChargeToday?.entityId],
-      ["discharge", t.dischargeToday, values.batteryDischargeToday, entities.batteryDischargeToday?.entityId],
-    ];
 
     const controlsHtml = this._controlsSection(stationId, t, locale);
     this.shadowRoot.innerHTML = `
@@ -964,22 +1180,22 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
         <section class="diagram-stage" aria-label="${escapeHtml(t.diagramLabel)}">
           <div class="ambient ambient-one"></div>
           <div class="ambient ambient-two"></div>
-          <svg class="flow-svg" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-hidden="true">
-            <path class="flow-base" d="M500 120 C500 160 500 190 500 238" />
-            <path class="flow-base" d="M232 320 C290 320 336 320 392 320" />
-            <path class="flow-base" d="M608 320 C664 320 710 320 768 320" />
-            <path class="flow-base" d="M500 402 C500 442 500 478 500 520" />
+          <svg class="flow-svg" aria-hidden="true">
+            <path class="flow-base" data-link="solar" />
+            <path class="flow-base" data-link="battery" />
+            <path class="flow-base" data-link="grid" />
+            <path class="flow-base" data-link="load" />
 
-            ${solarActive ? '<path class="flow-line solar-flow" d="M500 120 C500 160 500 190 500 238" />' : ""}
-            ${batteryChargeActive || batteryDischargeActive ? `<path class="flow-line battery-flow ${batteryChargeActive ? "reverse" : ""}" d="M232 320 C290 320 336 320 392 320" />` : ""}
-            ${gridImportActive || gridExportActive ? `<path class="flow-line grid-flow ${gridImportActive ? "reverse" : ""}" d="M608 320 C664 320 710 320 768 320" />` : ""}
-            ${loadActive ? '<path class="flow-line load-flow" d="M500 402 C500 442 500 478 500 520" />' : ""}
+            ${solarActive ? '<path class="flow-line solar-flow" data-link="solar" />' : ""}
+            ${batteryChargeActive || batteryDischargeActive ? `<path class="flow-line battery-flow ${batteryChargeActive ? "reverse" : ""}" data-link="battery" />` : ""}
+            ${gridImportActive || gridExportActive ? `<path class="flow-line grid-flow ${gridImportActive ? "reverse" : ""}" data-link="grid" />` : ""}
+            ${loadActive ? '<path class="flow-line load-flow" data-link="load" />' : ""}
           </svg>
 
-          ${solarActive ? `<span class="flow-label solar-label">${escapeHtml(formatPower(values.solar, locale))}</span>` : ""}
-          ${(batteryChargeActive || batteryDischargeActive) ? `<span class="flow-label battery-label">${escapeHtml(formatPower(batteryDisplayPower, locale))}</span>` : ""}
-          ${(gridImportActive || gridExportActive) ? `<span class="flow-label grid-label">${escapeHtml(formatPower(gridDisplayPower, locale))}</span>` : ""}
-          ${loadActive ? `<span class="flow-label load-label">${escapeHtml(formatPower(values.load, locale))}</span>` : ""}
+          ${solarActive ? `<span class="flow-label solar-label" data-link="solar">${escapeHtml(formatPower(values.solar, locale))}</span>` : ""}
+          ${(batteryChargeActive || batteryDischargeActive) ? `<span class="flow-label battery-label" data-link="battery">${escapeHtml(formatPower(batteryDisplayPower, locale))}</span>` : ""}
+          ${(gridImportActive || gridExportActive) ? `<span class="flow-label grid-label" data-link="grid">${escapeHtml(formatPower(gridDisplayPower, locale))}</span>` : ""}
+          ${loadActive ? `<span class="flow-label load-label" data-link="load">${escapeHtml(formatPower(values.load, locale))}</span>` : ""}
 
           <div class="diagram-grid">
             <div class="node-slot solar-slot">
@@ -1059,10 +1275,16 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           <section class="daily-section">
             <div class="section-heading">
               <div>
-                <span class="section-kicker">24H</span>
-                <h3>${escapeHtml(t.today)}</h3>
+                <span class="section-kicker">${escapeHtml(periodLabels[energyPeriod][0])}</span>
+                <h3>${escapeHtml(periodLabels[energyPeriod][1])}</h3>
               </div>
-              <span>${escapeHtml(t.entityDetails)}</span>
+              <span>${escapeHtml(energyHint)}</span>
+            </div>
+            <div class="segmented period-tabs" role="radiogroup" aria-label="${escapeHtml(t.today)}">
+              ${ENERGY_PERIODS.map((period) => `
+                <button type="button" role="radio" class="segment ${period === energyPeriod ? "selected" : ""}"
+                  aria-checked="${period === energyPeriod}" title="${escapeHtml(periodLabels[period][1])}"
+                  data-period="${period}">${escapeHtml(periodLabels[period][0])}</button>`).join("")}
             </div>
             <div class="daily-grid">
               ${dailyCards.map(([kind, label, value, entityId]) => `
@@ -1090,17 +1312,94 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       });
     }
 
+    this.shadowRoot.querySelectorAll("[data-period]").forEach((element) => {
+      element.addEventListener("click", () => {
+        if (element.dataset.period === this._energyPeriod()) return;
+        this._period = element.dataset.period;
+        this._render();
+      });
+    });
+
     this.shadowRoot.querySelectorAll("[data-entity]").forEach((element) => {
       const entityId = element.dataset.entity;
       if (!entityId) return;
       element.addEventListener("click", () => this._moreInfo(entityId));
     });
     this._wireControls();
+    this._observeDiagram();
 
     } catch (error) {
       console.error("DeyeCloud Energy Flow Card render error", error);
       this._renderError(error);
     }
+  }
+
+  disconnectedCallback() {
+    this._resizeObserver?.disconnect();
+  }
+
+  // The nodes sit in a responsive grid, so draw each flow line between the
+  // real edges of its two nodes instead of fixed diagram coordinates.
+  _observeDiagram() {
+    const stage = this.shadowRoot.querySelector(".diagram-stage");
+    if (!this._resizeObserver) {
+      this._resizeObserver = new ResizeObserver(() => this._layoutFlows());
+    }
+    this._resizeObserver.disconnect();
+    if (!stage) return;
+    this._resizeObserver.observe(stage);
+    stage.querySelectorAll(".flow-node").forEach((node) => this._resizeObserver.observe(node));
+    this._layoutFlows();
+  }
+
+  _layoutFlows() {
+    const stage = this.shadowRoot?.querySelector(".diagram-stage");
+    const svg = stage?.querySelector(".flow-svg");
+    if (!svg) return;
+    const box = stage.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    const rect = (selector) => {
+      const r = stage.querySelector(selector)?.getBoundingClientRect();
+      if (!r) return null;
+      return {
+        left: r.left - box.left,
+        right: r.right - box.left,
+        top: r.top - box.top,
+        bottom: r.bottom - box.top,
+        cx: (r.left + r.right) / 2 - box.left,
+        cy: (r.top + r.bottom) / 2 - box.top,
+      };
+    };
+    const inverter = rect(".inverter-node");
+    if (!inverter) return;
+    const solar = rect(".solar-node");
+    const battery = rect(".battery-node");
+    const grid = rect(".grid-node");
+    const home = rect(".home-node");
+    // Same start/end order as the animation direction: source to inverter,
+    // inverter to sink; "reverse" flips battery charging and grid import.
+    const links = {
+      solar: solar && [inverter.cx, solar.bottom, inverter.cx, inverter.top],
+      battery: battery && [battery.right, inverter.cy, inverter.left, inverter.cy],
+      grid: grid && [inverter.right, inverter.cy, grid.left, inverter.cy],
+      load: home && [inverter.cx, inverter.bottom, inverter.cx, home.top],
+    };
+    svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+    stage.querySelectorAll("[data-link]").forEach((element) => {
+      const link = links[element.dataset.link];
+      if (!link) return;
+      const [x1, y1, x2, y2] = link.map((value) => Math.round(value * 10) / 10);
+      if (element instanceof SVGElement) {
+        element.setAttribute("d", `M${x1} ${y1} L${x2} ${y2}`);
+      } else {
+        element.style.left = `${(x1 + x2) / 2}px`;
+        element.style.top = `${(y1 + y2) / 2}px`;
+        // Hide a value label that would cover the nodes on a short line.
+        const length = Math.hypot(x2 - x1, y2 - y1);
+        const size = x1 === x2 ? element.offsetHeight : element.offsetWidth;
+        element.style.visibility = length >= size + 12 ? "" : "hidden";
+      }
+    });
   }
 
   _renderError(error) {
@@ -1984,6 +2283,8 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           font-weight: 800;
           letter-spacing: .05em;
         }
+        .period-tabs { margin-bottom: 14px; }
+        .period-tabs .segment { min-height: 32px; padding: 6px 4px; font-size: 11px; }
         .daily-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2087,7 +2388,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
           .diagram-stage { aspect-ratio: 1 / 1.02; min-height: 370px; }
           .diagram-grid {
             grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr);
-            gap: 10px;
+            gap: 10px 18px;
           }
           .flow-node { min-height: 88px; }
           .node-copy strong { font-size: 14px; }
@@ -2139,7 +2440,7 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
             inset: 14px 10px;
             grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: auto auto auto;
-            gap: 10px 8px;
+            gap: 10px 18px;
           }
           /* Stack icon above text so labels keep one line in narrow cards. */
           .flow-node {

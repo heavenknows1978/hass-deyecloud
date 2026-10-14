@@ -267,5 +267,26 @@ class OptimizerAveragePowerTests(unittest.TestCase):
         self.assertEqual(record["power_kwh"], 0.0)
 
 
+class PeriodTotalTests(unittest.TestCase):
+    """Last 7 Days and lifetime totals for the card's period picker."""
+
+    def test_sums_every_day(self):
+        days = [{"generationValue": 1.1}, {"generationValue": "2.2"}, DATA.empty_daily_record("2026-10-14")]
+        self.assertEqual(DATA.sum_daily_records(days, "generationValue"), 3.3)
+
+    def test_missing_day_is_unknown(self):
+        days = [{"generationValue": 1.1}, None, {"generationValue": 2.2}]
+        self.assertIsNone(DATA.sum_daily_records(days, "generationValue"))
+
+    def test_lifetime_skips_months_without_value(self):
+        history = [
+            {"year": 2026, "month": 1, "chargeValue": 10.5},
+            {"year": 2026, "month": 2},
+            {"year": 2026, "month": 3, "chargeValue": 4.25},
+        ]
+        self.assertEqual(DATA.lifetime_total(history, "chargeValue"), 14.75)
+        self.assertIsNone(DATA.lifetime_total([], "chargeValue"))
+
+
 if __name__ == "__main__":
     unittest.main()
