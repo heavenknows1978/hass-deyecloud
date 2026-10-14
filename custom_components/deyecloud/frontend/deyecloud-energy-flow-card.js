@@ -1,4 +1,4 @@
-const CARD_VERSION = "2.6.0";
+const CARD_VERSION = "2.6.2";
 const CARD_TAG = "deyecloud-energy-flow-card-v3";
 const LEGACY_CARD_TAG = "deyecloud-energy-flow-card";
 const EDITOR_TAG = "deyecloud-energy-flow-card-v3-editor";
@@ -826,6 +826,14 @@ class DeyeCloudEnergyFlowCard extends HTMLElement {
       batteryChargeToday: stateNumber(entities.batteryChargeToday?.stateObj),
       batteryDischargeToday: stateNumber(entities.batteryDischargeToday?.stateObj),
     };
+
+    // Some stations leave chargePower/dischargePower empty or 0 and only
+    // report the signed batteryPower (negative = charging, positive =
+    // discharging). Derive the direction from it in that case.
+    if (values.batteryCharge <= 5 && values.batteryDischarge <= 5 && values.battery !== null) {
+      if (values.battery < 0) values.batteryCharge = -values.battery;
+      else values.batteryDischarge = values.battery;
+    }
 
     const allCurrentEntities = [
       entities.solar,

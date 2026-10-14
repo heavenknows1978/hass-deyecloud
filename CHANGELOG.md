@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.2
+
+- Energy Flow card: battery status now follows the signed **Battery Power** when the station leaves Battery Charge/Discharge Power empty or 0. A negative value shows as **Charging**, a positive one as **Discharging**, with the matching flow animation, instead of a positive value labelled Idle.
+
 ## 2.6.1
 
 - Optimizers (issue #28): new **Average Power** sensor (W) per optimizer. The OpenAPI still has no live per-panel power (`/device/latest`, `/device/measurePoints` and minute history return nothing / "device not supported" for optimizers), so the power is averaged from the growth of Production Today between refreshes.
